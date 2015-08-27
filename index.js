@@ -7,27 +7,31 @@ function createRecord () {
   throw new Error('Not Implemented');
 }
 
-function getDocument (trimId, cb) {
+function getDocument (trimId, callback) {
   var options = {
     url: url + '/get?id=' + trimId + '&securityToken=' + token
   }
   request.get(options, function (err, res, responseBody) {
-    cb(err, folder);
+    callback(err, responseBody);
   })
 }
 
-function getContainer (trimId, cb) {
+function getContainer (trimId, callback) {
   var options = {
     url: url + '/GetContainer?trimid=' + trimId + '&securityToken=' + token,
     json: true
   };
+  if (process.env.NODE_ENV !== 'production')
+    console.log('TRIM adapter is loading mock data');
+    return callback(null, require(__dirname + '/mock/getContainer.json'));
+
   request.get(options, function (err, res, responseBody) {
     // responseBody has containerNo, subContainers, and records
-    cb(err, responseBody);
+    callback(err, responseBody);
   });
 }
 
-function createContainer (folderName, privacy, parentFolder, cb) {
+function createContainer (folderName, privacy, parentFolder, callback) {
   var body = {
     RecordNo: folderName,
     Title: folderName,
@@ -39,7 +43,7 @@ function createContainer (folderName, privacy, parentFolder, cb) {
     json: body
   };
   request.post(options, function (err, res, responseBody) {
-    cb(err, responseBody);
+    callback(err, responseBody);
   });
 }
 
@@ -60,7 +64,7 @@ module.exports = function (apiUrl, apiToken) {
 }
 
 if (require.main === module) {
-  // invoce script directly
+  // invoke script directly
   url = 'http://emap.marlborough.govt.nz/trim/api/trim';
   trimId = 'BC140111';
   getContainer(trimId, function (err, result) {
