@@ -22,9 +22,13 @@ function getContainer (trimId, callback) {
     url: url + '/GetContainer?trimid=' + trimId + '&securityToken=' + token,
     json: true
   };
-   if (process.env.NODE_ENV !== 'production')
-     debug('TRIM adapter is loading mock data');
-     return callback(null, require(__dirname + '/mock/getContainer.json'));
+  //  if (process.env.NODE_ENV !== 'production')
+  //    debug('TRIM adapter is loading mock data');
+  //    return callback(null, require(__dirname + '/mock/getContainer.json'));
+  // DISABLE LIVE API FOR DEMO WOO QUALITY
+  //  if (process.env.NODE_ENV !== 'production')
+ debug('TRIM adapter is loading mock data');
+ return callback(null, require(__dirname + '/mock/getContainer.json'));
   debug('GET %s', options.url);
   request.get(options, function (err, res, responseBody) {
     // responseBody has containerNo, subContainers, and records
