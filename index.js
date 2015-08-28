@@ -1,5 +1,6 @@
 var request = require('request');
 var assert = require('assert');
+var debug = require('debug')('trim');
 var url;
 var token;
 
@@ -21,10 +22,10 @@ function getContainer (trimId, callback) {
     url: url + '/GetContainer?trimid=' + trimId + '&securityToken=' + token,
     json: true
   };
-  if (process.env.NODE_ENV !== 'production')
-    console.log('TRIM adapter is loading mock data');
-    return callback(null, require(__dirname + '/mock/getContainer.json'));
-
+   if (process.env.NODE_ENV !== 'production')
+     debug('TRIM adapter is loading mock data');
+     return callback(null, require(__dirname + '/mock/getContainer.json'));
+  debug('GET %s', options.url);
   request.get(options, function (err, res, responseBody) {
     // responseBody has containerNo, subContainers, and records
     callback(err, responseBody);
