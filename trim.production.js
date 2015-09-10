@@ -4,10 +4,35 @@ var debug = require('debug')('trim');
 var url;
 var token;
 
-function createRecord () {
-  throw new Error('Not Implemented');
+var createRecord;
+if (process.env.NODE_ENV !== 'production') {
+  createRecord = function createRecord (title, container, extension, fileData, callback) {
+    callback(err, {RecordNo: "151509"})
+  }
+} else {
+  createRecord = function createRecord (title, container, extension, fileData, callback) {
+    var options = {
+      url: url + '/AddRecordToTrim?securityToken=' + token,
+      json: {
+        Title: title,
+        Container: container,
+        RecordExtension: extension,
+        fileData: fileData
+      }
+    }
+
+    request.post(options, function (err, res, responseBody) {
+      callback(err, responseBody)
+    });
+  }
+
 }
 
+/**
+ * Get the actual document, not the TRIM record
+ * @param trimId
+ * @param callback
+ */
 function getDocument (trimId, callback) {
   var options = {
     url: url + '/get?id=' + trimId + '&securityToken=' + token
@@ -17,6 +42,21 @@ function getDocument (trimId, callback) {
   })
 }
 
+/**
+ * This callback returns a container
+ * @callback containerCallback
+ * @param {Error}     error
+ * @param {Object}    container
+ * @param {String}    container.containerNo
+ * @param {Object[]}  container.subcontainers
+ * @param {Object[]}  container.records
+ */
+
+
+/**
+ * @param trimId
+ * @param {containerCallback}  callback
+ */
 function getContainer (trimId, callback) {
   var options = {
     url: url + '/GetContainer?trimid=' + trimId + '&securityToken=' + token,
@@ -36,6 +76,15 @@ function getContainer (trimId, callback) {
   });
 }
 
+
+
+/**
+ *
+ * @param folderName
+ * @param privacy
+ * @param parentFolder
+ * @param callback
+ */
 function createContainer (folderName, privacy, parentFolder, callback) {
   var body = {
     RecordNo: folderName,
