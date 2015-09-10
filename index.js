@@ -4,5 +4,9 @@ module.exports = function (config) {
       require('./trim.development') :
       require('./trim.production');
 
+  if (config.mock) {
+    console.log('TRIM adapter is loading mock data');
+
+  }
   return library(config.url, config.token);
 }

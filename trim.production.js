@@ -4,29 +4,22 @@ var debug = require('debug')('trim');
 var url;
 var token;
 
-var createRecord;
-if (process.env.NODE_ENV !== 'production') {
-  createRecord = function createRecord (title, container, extension, fileData, callback) {
-    callback(err, {RecordNo: "151509"})
-  }
-} else {
-  createRecord = function createRecord (title, container, extension, fileData, callback) {
-    var options = {
-      url: url + '/AddRecordToTrim?securityToken=' + token,
-      json: {
-        Title: title,
-        Container: container,
-        RecordExtension: extension,
-        fileData: fileData
-      }
+function createRecord (title, container, extension, fileData, callback) {
+  var options = {
+    url: url + '/AddRecordToTrim?securityToken=' + token,
+    json: {
+      Title: title,
+      Container: container,
+      RecordExtension: extension,
+      fileData: fileData
     }
-
-    request.post(options, function (err, res, responseBody) {
-      callback(err, responseBody)
-    });
   }
 
+  request.post(options, function (err, res, responseBody) {
+    callback(err, responseBody)
+  });
 }
+
 
 /**
  * Get the actual document, not the TRIM record
@@ -62,20 +55,12 @@ function getContainer (trimId, callback) {
     url: url + '/GetContainer?trimid=' + trimId + '&securityToken=' + token,
     json: true
   };
-  //  if (process.env.NODE_ENV !== 'production')
-  //    debug('TRIM adapter is loading mock data');
-  //    return callback(null, require(__dirname + '/mock/getContainer.json'));
-  // DISABLE LIVE API FOR DEMO WOO QUALITY
-  //  if (process.env.NODE_ENV !== 'production')
-  debug('TRIM adapter is loading mock data');
-  return callback(null, require(__dirname + '/mock/getContainer.json'));
   debug('GET %s', options.url);
   request.get(options, function (err, res, responseBody) {
     // responseBody has containerNo, subContainers, and records
     callback(err, responseBody);
   });
 }
-
 
 
 /**
@@ -115,18 +100,4 @@ module.exports = function (apiUrl, apiToken) {
     createContainer: createContainer,
     createRecord: createRecord
   }
-}
-
-if (require.main === module) {
-  // invoke script directly
-  url = 'http://emap.marlborough.govt.nz/trim/api/trim';
-  trimId = 'BC140111';
-  getContainer(trimId, function (err, result) {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log(result);
-    }
-  });
-
 }
