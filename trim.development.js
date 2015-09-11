@@ -2,7 +2,7 @@ var assert = require('assert');
 var url, token;
 
 function createRecord (title, container, extension, fileData, callback) {
-  callback(err, {RecordNo: "13228764"})
+  callback(null, {RecordNo: "13228764"})
 }
 
 function getDocument (trimId, callback) {
