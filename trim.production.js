@@ -4,6 +4,22 @@ var debug = require('debug')('trim');
 var url;
 var token;
 
+
+/**
+ * Define the callback from the `createRecord` method
+ * @callback createRecordCallback
+ * @param {Error}  error
+ * @param {String} recordNo The TRIM RecordNo of the new document, if created.
+ */
+
+
+/**
+ * @param {String} title
+ * @param {String} container
+ * @param {String} extension
+ * @param {String} fileData
+ * @param {createRecordCallback} callback
+ */
 function createRecord (title, container, extension, fileData, callback) {
   var options = {
     url: url + '/AddRecordToTrim?securityToken=' + token,
@@ -17,7 +33,16 @@ function createRecord (title, container, extension, fileData, callback) {
     json: true
   }
   request(options, function (err, res, responseBody) {
-    callback(err, responseBody)
+    if (err) return callback(err);
+
+    var trimRecordNo = responseBody.RecordNo;
+
+    if (!trimRecordNo) {
+      debug('Invalid response %j', responseBody);
+      return callback(new Error('Error uploading document to TRIM: Missing RecordNo response. ' + responseBody.message));
+    }
+    debug('Created record with recordNo %s', trimRecordNo);
+    return callback(null, trimRecordNo)
   });
 }
 
