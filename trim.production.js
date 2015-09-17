@@ -7,15 +7,16 @@ var token;
 function createRecord (title, container, extension, fileData, callback) {
   var options = {
     url: url + '/AddRecordToTrim?securityToken=' + token,
-    json: {
+    method: 'post',
+    body: {
       Title: title,
       Container: container,
       RecordExtension: extension,
-      fileData: fileData
-    }
+      Record: fileData
+    },
+    json: true
   }
-
-  request.post(options, function (err, res, responseBody) {
+  request(options, function (err, res, responseBody) {
     callback(err, responseBody)
   });
 }
@@ -86,13 +87,22 @@ function createContainer (folderName, privacy, parentFolder, callback) {
   });
 }
 
-
-module.exports = function (apiUrl, apiToken) {
+/**
+ *
+ * @param {String} apiUrl Base TRIM url
+ * @param {String} apiToken TRIM securityToken
+ * @param {Boolean} debug If true, then require `request-debug`
+ * @return {{getContainer: getContainer, getDocument: getDocument, createContainer: createContainer, createRecord:
+ *     createRecord}}
+ */
+module.exports = function (apiUrl, apiToken, debug) {
   assert(typeof apiUrl === 'string', 'Argument 1 to instantiate the TRIM wrapper must be a valid url.')
   assert(typeof apiToken === 'string', 'Argument 2 to instantiate the TRIM wrapper must be a valid apiToken.')
 
   url = apiUrl;
   token = apiToken;
+  if (!!debug)
+    require('request-debug')(request);
 
   return {
     getContainer: getContainer,
