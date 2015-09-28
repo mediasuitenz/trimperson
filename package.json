@@ -1,5 +1,5 @@
 {
-  "name": "trimperson",
+  "name": "@mediasuite/trimperson",
   "version": "1.2.0",
   "description": "TRIM API wrapper",
   "main": "index.js",
