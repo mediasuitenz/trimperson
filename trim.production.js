@@ -99,6 +99,21 @@ function getContainer (trimId, callback) {
   });
 }
 
+/**
+ * @param trimId
+ * @param {containerCallback}  callback
+ */
+function getPrivateContainer (trimId, callback) {
+  var options = {
+    url: url + '/getPrivateContainer?trimid=' + trimId + '&securityToken=' + token,
+    json: true
+  };
+  debug('GET %s', options.url);
+  request.get(options, function (err, res, responseBody) {
+    // responseBody has containerNo, subContainers, and records
+    callback(err, responseBody);
+  });
+}
 
 /**
  *
@@ -144,6 +159,7 @@ module.exports = function (apiUrl, apiToken, debug) {
     getContainer: getContainer,
     getDocument: getDocument,
     createContainer: createContainer,
-    createRecord: createRecord
+    createRecord: createRecord,
+    getPrivateContainer: getPrivateContainer
   }
 }
