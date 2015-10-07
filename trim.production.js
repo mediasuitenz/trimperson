@@ -82,19 +82,13 @@ function getDocument (trimId, callback) {
  * @param {Object[]}  container.records
  */
 
-
-/**
- * @param trimId
- * @param {containerCallback}  callback
- */
-function getContainer (trimId, callback) {
+function getContainerUsingMethod(method, trimId, securityToken, callback) {
   var options = {
-    url: url + '/GetContainer?trimid=' + trimId + '&securityToken=' + token,
+    url: url + '/' + method + '?trimid=' + trimId + '&securityToken=' + securityToken,
     json: true
   };
   debug('GET %s', options.url);
   request.get(options, function (err, res, responseBody) {
-    // responseBody has containerNo, subContainers, and records
     callback(err, responseBody);
   });
 }
@@ -103,16 +97,16 @@ function getContainer (trimId, callback) {
  * @param trimId
  * @param {containerCallback}  callback
  */
+function getContainer (trimId, callback) {
+  getContainerUsingMethod('GetContainer', trimId, token, callback);
+}
+
+/**
+ * @param trimId
+ * @param {containerCallback}  callback
+ */
 function getPrivateContainer (trimId, callback) {
-  var options = {
-    url: url + '/getPrivateContainer?trimid=' + trimId + '&securityToken=' + token,
-    json: true
-  };
-  debug('GET %s', options.url);
-  request.get(options, function (err, res, responseBody) {
-    // responseBody has containerNo, subContainers, and records
-    callback(err, responseBody);
-  });
+  getContainerUsingMethod('getPrivateContainer', trimId, token, callback);
 }
 
 /**
