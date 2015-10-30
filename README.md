@@ -1,46 +1,56 @@
 # trimperson
-TRIM API wrapper
+TRIM API wrapper. Uses the RSVP library for promises.
 
 ## Installation
 
 ```
-npm install --save mediasuitenz/trimperson#v1.0.0
+npm install --save mediasuitenz/trimperson
 ```
 
 ## Usage
 ### setup module:
 ```js
-var trim = require('trim')('http://path/to/trim/api', 'trim-api-security-token')
+
+var env = {
+  "token": "",
+  "url": "",
+  "mock": false,
+  "debug": true,
+  "developmentContainer": "",
+  "useDevelopmentContainer": false
+}
+
+var trim = require('trim')(env)
 ```
 
 
 ### use module:
 Get a single container
 ```
-trim.getContainer ("BC140111", function (err, data)) {
-
-}
+trim.getContainer ("BC140111")
+.then(data => {})
+.catch(err => {})
 ```
 
 
 Create a new container
 ```
-trim.createContainer (???, function (err, data)) {
-
-}
+trim.createContainer (???)
+.then(data => {})
+.catch(err => {})
 ```
 
 
 Create a new record
 ```
-trim.createRecord () {
-
-}
+trim.createRecord (???)
+.then(data => {})
+.catch(err => {})
 ```
 
 
 
-### Hilltop data
+### TRIM data
 
 Data returned from find looks like:
 ```json
