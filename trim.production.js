@@ -2,6 +2,7 @@ var request = require('request');
 var assert = require('assert');
 var debug = require('debug')('trim');
 var RSVP = require('rsvp');
+var R = require('ramda-extended')
 var url;
 var token;
 
@@ -84,6 +85,7 @@ function getDocument (trimId) {
  */
 function getContainer (trimId) {
   return new Promise(function (resolve, reject) {
+    if (!trimId) return reject(new Error('Invalid TRIM container id: ' + trimId))
     var options = {
       url: url + '/GetContainer?trimid=' + trimId + '&securityToken=' + token,
       json: true
@@ -91,7 +93,9 @@ function getContainer (trimId) {
     debug('GET %s', options.url);
     request.get(options, function (err, res, responseBody) {
       // responseBody has containerNo, subContainers, and records
-      return (err) ? reject(err): resolve(responseBody);
+      if (err) return reject(err);
+      if (R.isNilOrEmptyObj(responseBody)) return reject(new Error('Could not find container: ' + trimId))
+      return resolve(responseBody);
     });
 
   })
