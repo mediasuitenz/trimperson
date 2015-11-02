@@ -1,18 +1,16 @@
-var describe = require('mocha').describe
-var it = require('mocha').it
-var beforeEach = require('mocha').beforeEach
+/* global Given, Then, describe */
 var expect = require('chai').expect
 var nock = require('nock')
 
-var mockURL = 'http://localhost'
-var mockToken = 'DEADBEEF'
-
-// setup mock for trimperson api
-
-describe('when using trimperson api', function () {
+describe('when using trimperson api', () => {
   var trim
+  var mockURL
+  var mockToken
 
-  beforeEach(function () {
+  Given(() => mockURL = 'http://localhost')
+  Given(() => mockToken = 'DEADBEEF')
+
+  Given(() => {
     trim = require('./index')({
       url: mockURL,
       token: mockToken,
@@ -20,55 +18,54 @@ describe('when using trimperson api', function () {
     })
   })
 
-  it('should create a trimperson object', function () {
-    expect(trim).to.be.a('object')
-  })
+  Then('it should have created a trimperson object', () => expect(trim).to.be.a('object'))
 
-  describe('when using the getContainer function', function () {
-    it('should exist on the trim instance', function () {
-      expect(trim.getContainer).to.be.a('function')
-    })
+  describe('using the getContainer function', () => {
+    Then('the function should exist on the trim instance', () => expect(trim.getContainer).to.be.a('function'))
 
-    it('should getContainer and execute the callback', function (done) {
+    describe('when invoking the getContainer funciton', () => {
+      var getContainerMock
       var fakeID = 'fakecontainerid'
 
-      var getContainerMock = nock(mockURL)
-        .get('/GetContainer')
-        .query({trimid: fakeID, securityToken: mockToken})
-        .reply(200, {
-          containerNo: 'someid',
-          subContainers: []
+      Given(() => {
+        getContainerMock = nock(mockURL)
+          .get('/GetContainer')
+          .query({trimid: fakeID, securityToken: mockToken})
+          .reply(200, {
+            containerNo: 'someid',
+            subContainers: []
+          })
+      })
+
+      Then('it should resolve without error', (done) => {
+        trim.getContainer(fakeID, (err, data) => {
+          expect(err).not.to.exist
+          expect(data).to.exist
+
+          expect(data.containerNo).to.equal('someid')
+          expect(data.subContainers).to.be.a('array')
+          getContainerMock.done() // throws an error if no request was recorded
+          done()
         })
-
-      trim.getContainer(fakeID, function (err, data) {
-        expect(err).to.be.an('null')
-        expect(data).not.to.be.a('undefined')
-
-        expect(data.containerNo).to.equal('someid')
-        expect(data.subContainers).to.be.a('array')
-        getContainerMock.done() // throws an error if no request was recorded
-        done()
       })
     })
   })
 
-  describe('when using the getDocument function', function () {
-    it('should exist on the trim instance', function () {
-      expect(trim.getDocument).to.be.a('function')
-    })
-
-    it('should getDocument succesfully', function (done) {
-      var documentId = 'someIDthatPointsToADoucment'
-      var getDocumentMock = nock(mockURL)
+  describe('when using the getDocument function', () => {
+    var documentId
+    var getDocumentMock
+    Given(() => documentId = 'someIDthatPointsToADocument')
+    Given(() => {
+      getDocumentMock = nock(mockURL)
         .get('/get')
         .query({id: documentId, securityToken: mockToken})
-        .reply(200, {
-          msg: 'response' // TODO what shape object does getDocument actually return
-        })
+        .reply(200, 'data:video/mp4;base64,R0lGOD lhCwAOAMQfAP////7+/vj4+Hh4eHd3d/v7+/Dw8')
+    })
 
+    Then('it should getDocument succesfully', (done) => {
       trim.getDocument(documentId, function (err, data) {
-        expect(err).to.be.an('null')
-        expect(data).not.to.be.an('undefined')
+        expect(err).not.to.exist
+        expect(data).to.exist
 
         getDocumentMock.done()
         done()
@@ -76,13 +73,13 @@ describe('when using trimperson api', function () {
     })
   })
 
-  describe('when using the createContainer function', function () {
-    it('should exist on the trim instance', function () {
-      expect(trim.createContainer).to.be.a('function')
-    })
-
-    it('should be able to create a container', function (done) {
-      var createContainerMock = nock(mockURL)
+  describe('when using the createContainer function', () => {
+    var createContainerMock, folder, parentFolder, privacySetting
+    Given(() => folder = 'someFolder')
+    Given(() => parentFolder = 'someParentFolder')
+    Given(() => privacySetting = 'jamesBond')
+    Given(() => {
+      createContainerMock = nock(mockURL)
         .filteringRequestBody(function (body) {
           return '*' // this allows us to ignore the contents of the post for this asertion
         })
@@ -91,57 +88,65 @@ describe('when using trimperson api', function () {
         .reply(201, {
           msg: 'create response' // TODO determine the shape of the response
         })
-
-      trim.createContainer('someFolderName', 'somePrivacySetting', 'someParentFolder', function (err, data) {
-        expect(err).to.be.a('null')
-        expect(data).not.to.be.a('undefined')
-
+    })
+    Then('it should be able to create a container', (done) => {
+      trim.createContainer(folder, privacySetting, parentFolder, function (err, data) {
+        expect(err).not.to.exist
+        expect(data).to.exist
         createContainerMock.done()
         done()
       })
     })
   })
 
-  describe('when using the createRecord function', function () {
-    it('should exist on the trim instance', function () {
-      expect(trim.createRecord).to.be.a('function')
-    })
+  describe('when using the createRecord function', () => {
+    var title, containerId, extensionType, fileData, createRecordMock
 
-    it('should be able to succesfully use the function', function (done) {
-      var createRecordMock = nock(mockURL)
-        .filteringRequestBody(function (bodyt) {
-          return '*'
+    Given(() => title = 'inside-out')
+    Given(() => containerId = 'asdfjk')
+    Given(() => extensionType = '.mp4')
+    Given(() => fileData = 'data:video/mp4;base64,R0lGOD lhCwAOAMQfAP////7+/vj4+Hh4eHd3d/v7+/Dw8HV1dfLy8ubm5vX19e3t7fr')
+
+    describe('when the backend accepts the record', () => {
+      Given(() => {
+        createRecordMock = nock(mockURL)
+          .filteringRequestBody(function (bodyt) {
+            return '*'
+          })
+          .post('/AddRecordToTrim', '*')
+          .query({ securityToken: mockToken })
+          .reply(201, { RecordNo: '123456' })
+      })
+      Then('it should be able to succesfully use the function', (done) => {
+        trim.createRecord(title, containerId, extensionType, fileData, function (err, data) {
+          expect(err).not.to.exist
+          expect(data).to.exist
+          expect(data).to.be.a('string')
+          expect(data).to.equal('123456')
+          createRecordMock.done()
+          done()
         })
-        .post('/AddRecordToTrim', '*')
-        .query({ securityToken: mockToken })
-        .reply(201, { RecordNo: '123456' })
-
-      trim.createRecord('newTitle', 'containerID', 'extensiontype', 'fileData', function (err, data) {
-        expect(err).to.be.an('null')
-        expect(data).not.to.be.an('undefined')
-
-        expect(data).to.be.a('string')
-        expect(data).to.equal('123456')
-        createRecordMock.done()
-        done()
       })
     })
 
-    it('should fail when TRIM responds without a record number number', function (done) {
-      var createRecordMock = nock(mockURL)
-        .filteringRequestBody(function (bodyt) {
-          return '*'
+    describe('when the TRIM fails to recieve a createRecord request', () => {
+      Given(() => {
+        createRecordMock = nock(mockURL)
+          .filteringRequestBody(function (bodyt) {
+            return '*'
+          })
+          .post('/AddRecordToTrim', '*')
+          .query({ securityToken: mockToken })
+          .reply(500, { msg: 'it failed wtfomg' })
+      })
+      Then('it should fail when TRIM responds without a record number number', (done) => {
+        trim.createRecord(title, containerId, extensionType, fileData, function (err, data) {
+          expect(err).to.exist
+          expect(data).not.to.exist
+
+          createRecordMock.done()
+          done()
         })
-        .post('/AddRecordToTrim', '*')
-        .query({ securityToken: mockToken })
-        .reply(500, { msg: 'it failed wtfomg' }) // determine shape of response
-
-      trim.createRecord('newTitle', 'containerID', 'extensiontype', 'fileData', function (err, data) {
-        expect(err).not.to.be.an('null')
-        expect(data).to.be.an('undefined')
-
-        createRecordMock.done()
-        done()
       })
     })
   })
