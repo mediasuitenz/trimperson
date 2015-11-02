@@ -1,20 +1,28 @@
 var assert = require('assert');
 var url, token;
 
-function createRecord (title, container, extension, fileData, callback) {
-  callback(null, {RecordNo: "13228764"})
+function createRecord (title, container, extension, fileData) {
+  return new Promise(function (resolve) {
+    return resolve({RecordNo: "13228764"})
+  })
 }
 
-function getDocument (trimId, callback) {
-  callback(null, null);
+function getDocument (trimId) {
+  return new Promise(function (resolve) {
+    return resolve('');
+  })
 }
 
-function getContainer (trimId, callback) {
-  return callback(null, require('./mock/getContainer.json'));
+function getContainer (trimId) {
+  return new Promise(function (resolve) {
+    return resolve(require('./mock/getContainer.json'));
+  })
 }
 
-function createContainer (folderName, privacy, parentFolder, callback) {
-  callback(null, {}); // dunno what this is supposed to be.
+function createContainer (folderName, privacy, parentFolder) {
+  return new Promise(function (resolve) {
+    return resolve({})  // dunno what this is supposed to be.
+  })
 }
 
 module.exports = function (apiUrl, apiToken) {

@@ -10,7 +10,9 @@
   "license": "",
   "dependencies": {
     "debug": "^2.2.0",
+    "ramda-extended": "^0.2.0",
     "request": "^2.61.0",
-    "request-debug": "^0.2.0"
+    "request-debug": "^0.2.0",
+    "rsvp": "^3.1.0"
   }
 }

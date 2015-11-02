@@ -1,9 +1,12 @@
 var request = require('request');
 var assert = require('assert');
 var debug = require('debug')('trim');
+var RSVP = require('rsvp');
+var R = require('ramda-extended')
 var url;
 var token;
 
+const Promise = RSVP.Promise;
 
 /**
  * Define the callback from the `createRecord` method
@@ -18,46 +21,50 @@ var token;
  * @param {String} container
  * @param {String} extension
  * @param {String} fileData
- * @param {createRecordCallback} callback
+ * @return {Promise}
  */
-function createRecord (title, container, extension, fileData, callback) {
-  var options = {
-    url: url + '/AddRecordToTrim?securityToken=' + token,
-    method: 'post',
-    body: {
-      Title: title,
-      Container: container,
-      RecordExtension: extension,
-      Record: fileData
-    },
-    json: true
-  }
-  request(options, function (err, res, responseBody) {
-    if (err) return callback(err);
-
-    var trimRecordNo = responseBody.RecordNo;
-
-    if (!trimRecordNo) {
-      debug('Invalid response %j', responseBody);
-      return callback(new Error('Error uploading document to TRIM: Missing RecordNo response. ' + responseBody.message));
+function createRecord (title, container, extension, fileData) {
+  return new Promise(function (resolve, reject) {
+    var options = {
+      url: url + '/AddRecordToTrim?securityToken=' + token,
+      method: 'post',
+      body: {
+        Title: title,
+        Container: container,
+        RecordExtension: extension,
+        Record: fileData
+      },
+      json: true
     }
-    debug('Created record with recordNo %s', trimRecordNo);
-    return callback(null, trimRecordNo)
-  });
+    request(options, function (err, res, responseBody) {
+      if (err) return reject(err);
+
+      var trimRecordNo = responseBody.RecordNo;
+
+      if (!trimRecordNo) {
+        debug('Invalid response %j', responseBody);
+        return reject(new Error('Error uploading document to TRIM: Missing RecordNo response. ' + responseBody.message));
+      }
+      debug('Created record with recordNo %s', trimRecordNo);
+      return resolve(trimRecordNo)
+    });
+  })
 }
 
 
 /**
  * Get the actual document, not the TRIM record
  * @param trimId
- * @param callback
+ * @return {Promise}
  */
-function getDocument (trimId, callback) {
-  var options = {
-    url: url + '/get?id=' + trimId + '&securityToken=' + token
-  }
-  request.get(options, function (err, res, responseBody) {
-    callback(err, responseBody);
+function getDocument (trimId) {
+  return new Promise(function (resolve, reject) {
+    var options = {
+      url: url + '/get?id=' + trimId + '&securityToken=' + token
+    }
+    request.get(options, function (err, res, responseBody) {
+      return (err) ? reject(err): resolve(responseBody);
+    })
   })
 }
 
@@ -74,18 +81,24 @@ function getDocument (trimId, callback) {
 
 /**
  * @param trimId
- * @param {containerCallback}  callback
+ * @return {Promise}
  */
-function getContainer (trimId, callback) {
-  var options = {
-    url: url + '/GetContainer?trimid=' + trimId + '&securityToken=' + token,
-    json: true
-  };
-  debug('GET %s', options.url);
-  request.get(options, function (err, res, responseBody) {
-    // responseBody has containerNo, subContainers, and records
-    callback(err, responseBody);
-  });
+function getContainer (trimId) {
+  return new Promise(function (resolve, reject) {
+    if (!trimId) return reject(new Error('Invalid TRIM container id: ' + trimId))
+    var options = {
+      url: url + '/GetContainer?trimid=' + trimId + '&securityToken=' + token,
+      json: true
+    };
+    debug('GET %s', options.url);
+    request.get(options, function (err, res, responseBody) {
+      // responseBody has containerNo, subContainers, and records
+      if (err) return reject(err);
+      if (R.isNilOrEmptyObj(responseBody)) return reject(new Error('Could not find container: ' + trimId))
+      return resolve(responseBody);
+    });
+
+  })
 }
 
 
@@ -94,22 +107,24 @@ function getContainer (trimId, callback) {
  * @param folderName
  * @param privacy
  * @param parentFolder
- * @param callback
+ * @return {Promise}
  */
-function createContainer (folderName, privacy, parentFolder, callback) {
-  var body = {
-    RecordNo: folderName,
-    Title: folderName,
-    Privacy: privacy,
-    ParentFolder: parentFolder
-  };
-  var options = {
-    url: url + '/CreateContainer?securityToken=' + token,
-    json: body
-  };
-  request.post(options, function (err, res, responseBody) {
-    callback(err, responseBody);
-  });
+function createContainer (folderName, privacy, parentFolder) {
+  return new Promise(function (resolve, reject) {
+    var body = {
+      RecordNo: folderName,
+      Title: folderName,
+      Privacy: privacy,
+      ParentFolder: parentFolder
+    };
+    var options = {
+      url: url + '/CreateContainer?securityToken=' + token,
+      json: body
+    };
+    request.post(options, function (err, res, responseBody) {
+      return (err) ? reject(err): resolve(responseBody);
+    });
+  })
 }
 
 /**
