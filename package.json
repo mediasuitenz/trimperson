@@ -4,8 +4,8 @@
   "description": "TRIM API wrapper",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha specs.js",
-    "test:watch": "./node_modules/nodemon/bin/nodemon.js --exec \"npm run test\" specs.js"
+    "test": "node_modules/.bin/mocha -R tap --compilers js:mocha-babel specs.js",
+    "test:watch": "testem"
   },
   "author": "Mediasuite NZ",
   "license": "",
