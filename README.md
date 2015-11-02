@@ -150,3 +150,11 @@ Data returned from find looks like:
   ]
 }
 ```
+
+#Development
+
+1. Get the code `git checkout git@github.com:mediasuitenz/trimperson.git`
+2. Install dependencies `cd trimperson && npm install`
+3. Run tests `npm run test`
+4. alternative to (3) run `npm run test:watch` to have tests run whenever a file changes
+
