@@ -14,13 +14,22 @@ var token;
 
 
 /**
- * @param {String} title
- * @param {String} container
- * @param {String} extension
- * @param {String} fileData
+ * @param {String} title Record Title
+ * @param {String} container Name of the container to upload to
+ * @param {String} extension without the period, e.g. "pdf" or "png" but not ".png"
+ * @param {String} fileData base64 encoding of the date without the dateURL prefix stuff
+ * @param {String[]} alternativeContainers Names of containers to link the file to in addition to the "container" param
  * @param {createRecordCallback} callback
  */
-function createRecord (title, container, extension, fileData, callback) {
+function createRecord (title, container, extension, fileData, alternativeContainers, callback) {
+  if (typeof alternativeContainers === 'function') {
+    throw new Error('Migration Error: a new parameter was added: alternativeContainers')
+  }
+  alternativeContainers = alternativeContainers || [];
+  if (!R.isArrayLike(alternativeContainers)) {
+    throw new Error('alternativeContainers must be a list of strings')
+  }
+
   var options = {
     url: url + '/AddRecordToTrim?securityToken=' + token,
     method: 'post',
@@ -28,6 +37,7 @@ function createRecord (title, container, extension, fileData, callback) {
       Title: title,
       Container: container,
       RecordExtension: extension,
+      AlternativeContainers: alternativeContainers,
       Record: fileData
     },
     json: true
