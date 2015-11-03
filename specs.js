@@ -100,11 +100,12 @@ describe('when using trimperson api', () => {
   })
 
   describe('when using the createRecord function', () => {
-    var title, containerId, extensionType, fileData, createRecordMock
+    var title, containerId, extensionType, fileData, alternativeContainers, createRecordMock
 
     Given(() => title = 'inside-out')
     Given(() => containerId = 'asdfjk')
     Given(() => extensionType = '.mp4')
+    Given(() => alternativeContainers = ['himark'])
     Given(() => fileData = 'data:video/mp4;base64,R0lGOD lhCwAOAMQfAP////7+/vj4+Hh4eHd3d/v7+/Dw8HV1dfLy8ubm5vX19e3t7fr')
 
     describe('when the backend accepts the record', () => {
@@ -118,7 +119,7 @@ describe('when using trimperson api', () => {
           .reply(201, { RecordNo: '123456' })
       })
       Then('it should be able to succesfully use the function', (done) => {
-        trim.createRecord(title, containerId, extensionType, fileData, function (err, data) {
+        trim.createRecord(title, containerId, extensionType, fileData, alternativeContainers, function (err, data) {
           expect(err).not.to.exist
           expect(data).to.exist
           expect(data).to.be.a('string')
@@ -140,7 +141,7 @@ describe('when using trimperson api', () => {
           .reply(500, { msg: 'it failed wtfomg' })
       })
       Then('it should fail when TRIM responds without a record number number', (done) => {
-        trim.createRecord(title, containerId, extensionType, fileData, function (err, data) {
+        trim.createRecord(title, containerId, extensionType, fileData, alternativeContainers, function (err, data) {
           expect(err).to.exist
           expect(data).not.to.exist
 

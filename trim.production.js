@@ -1,6 +1,7 @@
 var request = require('request');
 var assert = require('assert');
 var debug = require('debug')('trim');
+var R = require('ramda-extended');
 var url;
 var token;
 
@@ -27,7 +28,7 @@ function createRecord (title, container, extension, fileData, alternativeContain
   }
   alternativeContainers = alternativeContainers || [];
   if (!R.isArrayLike(alternativeContainers)) {
-    throw new Error('alternativeContainers must be a list of strings')
+    throw new Error('alternativeContainers must be a list of strings: ' + alternativeContainers)
   }
 
   var options = {
