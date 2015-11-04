@@ -120,11 +120,12 @@ describe('when using trimperson api', () => {
   })
 
   describe('when using the createRecord function', () => {
-    var title, containerId, extensionType, fileData, createRecordMock
+    var title, containerId, extensionType, fileData, alternativeContainers, createRecordMock
 
     Given(() => title = 'inside-out')
     Given(() => containerId = 'asdfjk')
     Given(() => extensionType = '.mp4')
+    Given(() => alternativeContainers = ['himark'])
     Given(() => fileData = 'data:video/mp4;base64,R0lGOD lhCwAOAMQfAP////7+/vj4+Hh4eHd3d/v7+/Dw8HV1dfLy8ubm5vX19e3t7fr')
 
     describe('when the backend accepts the record', () => {
@@ -140,7 +141,7 @@ describe('when using trimperson api', () => {
           .reply(201, { RecordNo: '123456' })
       })
       When((done) => {
-        trim.createRecord(title, containerId, extensionType, fileData, function (err, data) {
+        trim.createRecord(title, containerId, extensionType, fileData, alternativeContainers, function (err, data) {
           errReturn = err
           dataReturn = data
           done()
@@ -169,7 +170,7 @@ describe('when using trimperson api', () => {
           .reply(500, { msg: 'it failed wtfomg' })
       })
       When((done) => {
-        trim.createRecord(title, containerId, extensionType, fileData, function (err, data) {
+        trim.createRecord(title, containerId, extensionType, fileData, alternativeContainers, function (err, data) {
           errReturn = err
           dataReturn = data
           done()
