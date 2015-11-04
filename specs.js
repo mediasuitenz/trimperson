@@ -26,6 +26,8 @@ describe('when using trimperson api', () => {
     describe('when invoking the getContainer funciton', () => {
       var getContainerMock
       var fakeID = 'fakecontainerid'
+      var dataReturn
+      var errReturn
 
       Given(() => {
         getContainerMock = nock(mockURL)
@@ -37,16 +39,20 @@ describe('when using trimperson api', () => {
           })
       })
 
-      Then('it should resolve without error', (done) => {
+      When((done) => {
         trim.getContainer(fakeID, (err, data) => {
-          expect(err).not.to.exist
-          expect(data).to.exist
-
-          expect(data.containerNo).to.equal('someid')
-          expect(data.subContainers).to.be.a('array')
-          getContainerMock.done() // throws an error if no request was recorded
+          dataReturn = data
+          errReturn = err
           done()
         })
+      })
+
+      Then('it should resolve without error', () => {
+        expect(errReturn).not.to.exist
+        expect(dataReturn).to.exist
+        expect(dataReturn.containerNo).to.equal('someid')
+        expect(dataReturn.subContainers).to.be.a('array')
+        getContainerMock.done() // throws an error if no request was recorded
       })
     })
   })
@@ -54,6 +60,9 @@ describe('when using trimperson api', () => {
   describe('when using the getDocument function', () => {
     var documentId
     var getDocumentMock
+    var dataReturn
+    var errReturn
+
     Given(() => documentId = 'someIDthatPointsToADocument')
     Given(() => {
       getDocumentMock = nock(mockURL)
@@ -62,19 +71,26 @@ describe('when using trimperson api', () => {
         .reply(200, 'data:video/mp4;base64,R0lGOD lhCwAOAMQfAP////7+/vj4+Hh4eHd3d/v7+/Dw8')
     })
 
-    Then('it should getDocument succesfully', (done) => {
+    When((done) => {
       trim.getDocument(documentId, function (err, data) {
-        expect(err).not.to.exist
-        expect(data).to.exist
-
-        getDocumentMock.done()
+        dataReturn = data
+        errReturn = err
         done()
       })
+    })
+
+    Then('it should getDocument succesfully', () => {
+      expect(errReturn).not.to.exist
+      expect(dataReturn).to.exist
+      getDocumentMock.done()
     })
   })
 
   describe('when using the createContainer function', () => {
     var createContainerMock, folder, parentFolder, privacySetting
+    var dataReturn
+    var errReturn
+
     Given(() => folder = 'someFolder')
     Given(() => parentFolder = 'someParentFolder')
     Given(() => privacySetting = 'jamesBond')
@@ -89,13 +105,17 @@ describe('when using trimperson api', () => {
           msg: 'create response' // TODO determine the shape of the response
         })
     })
-    Then('it should be able to create a container', (done) => {
+    When((done) => {
       trim.createContainer(folder, privacySetting, parentFolder, function (err, data) {
-        expect(err).not.to.exist
-        expect(data).to.exist
-        createContainerMock.done()
+        errReturn = err
+        dataReturn = data
         done()
       })
+    })
+    Then('it should be able to create a container', () => {
+      expect(errReturn).not.to.exist
+      expect(dataReturn).to.exist
+      createContainerMock.done()
     })
   })
 
@@ -108,6 +128,8 @@ describe('when using trimperson api', () => {
     Given(() => fileData = 'data:video/mp4;base64,R0lGOD lhCwAOAMQfAP////7+/vj4+Hh4eHd3d/v7+/Dw8HV1dfLy8ubm5vX19e3t7fr')
 
     describe('when the backend accepts the record', () => {
+      var errReturn
+      var dataReturn
       Given(() => {
         createRecordMock = nock(mockURL)
           .filteringRequestBody(function (bodyt) {
@@ -117,19 +139,26 @@ describe('when using trimperson api', () => {
           .query({ securityToken: mockToken })
           .reply(201, { RecordNo: '123456' })
       })
-      Then('it should be able to succesfully use the function', (done) => {
+      When((done) => {
         trim.createRecord(title, containerId, extensionType, fileData, function (err, data) {
-          expect(err).not.to.exist
-          expect(data).to.exist
-          expect(data).to.be.a('string')
-          expect(data).to.equal('123456')
-          createRecordMock.done()
+          errReturn = err
+          dataReturn = data
           done()
         })
       })
+      Then('it should be able to succesfully use the function', () => {
+        expect(errReturn).not.to.exist
+        expect(dataReturn).to.exist
+        expect(dataReturn).to.be.a('string')
+        expect(dataReturn).to.equal('123456')
+        createRecordMock.done()
+      })
+
     })
 
     describe('when the TRIM fails to recieve a createRecord request', () => {
+      var errReturn
+      var dataReturn
       Given(() => {
         createRecordMock = nock(mockURL)
           .filteringRequestBody(function (bodyt) {
@@ -139,14 +168,17 @@ describe('when using trimperson api', () => {
           .query({ securityToken: mockToken })
           .reply(500, { msg: 'it failed wtfomg' })
       })
-      Then('it should fail when TRIM responds without a record number number', (done) => {
+      When((done) => {
         trim.createRecord(title, containerId, extensionType, fileData, function (err, data) {
-          expect(err).to.exist
-          expect(data).not.to.exist
-
-          createRecordMock.done()
+          errReturn = err
+          dataReturn = data
           done()
         })
+      })
+      Then('it should fail when TRIM responds without a record number number', () => {
+        expect(errReturn).to.exist
+        expect(dataReturn).not.to.exist
+        createRecordMock.done()
       })
     })
   })
