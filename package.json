@@ -1,6 +1,6 @@
 {
   "name": "@mediasuite/trimperson",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "TRIM API wrapper",
   "main": "index.js",
   "scripts": {
