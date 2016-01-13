@@ -17,6 +17,10 @@ function createContainer (folderName, privacy, parentFolder, callback) {
   callback(null, {}); // dunno what this is supposed to be.
 }
 
+function getPrivateContainer(trimId, callback) {
+  return callback(null, require('./mock/getContainer.json'));
+}
+
 module.exports = function (apiUrl, apiToken) {
   assert(typeof apiUrl === 'string', 'Argument 1 to instantiate the TRIM wrapper must be a valid url.')
   assert(typeof apiToken === 'string', 'Argument 2 to instantiate the TRIM wrapper must be a valid apiToken.')
@@ -28,6 +32,7 @@ module.exports = function (apiUrl, apiToken) {
     getContainer: getContainer,
     getDocument: getDocument,
     createContainer: createContainer,
-    createRecord: createRecord
+    createRecord: createRecord,
+    getPrivateContainer: getPrivateContainer
   }
 }

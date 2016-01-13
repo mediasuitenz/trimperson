@@ -82,23 +82,32 @@ function getDocument (trimId, callback) {
  * @param {Object[]}  container.records
  */
 
+function getContainerUsingMethod(method, trimId, securityToken, callback) {
+  var options = {
+    url: url + '/' + method + '?trimid=' + trimId + '&securityToken=' + securityToken,
+    json: true
+  };
+  debug('GET %s', options.url);
+  request.get(options, function (err, res, responseBody) {
+    callback(err, responseBody);
+  });
+}
 
 /**
  * @param trimId
  * @param {containerCallback}  callback
  */
 function getContainer (trimId, callback) {
-  var options = {
-    url: url + '/GetContainer?trimid=' + trimId + '&securityToken=' + token,
-    json: true
-  };
-  debug('GET %s', options.url);
-  request.get(options, function (err, res, responseBody) {
-    // responseBody has containerNo, subContainers, and records
-    callback(err, responseBody);
-  });
+  getContainerUsingMethod('GetContainer', trimId, token, callback);
 }
 
+/**
+ * @param trimId
+ * @param {containerCallback}  callback
+ */
+function getPrivateContainer (trimId, callback) {
+  getContainerUsingMethod('getPrivateContainer', trimId, token, callback);
+}
 
 /**
  *
@@ -144,6 +153,7 @@ module.exports = function (apiUrl, apiToken, debug) {
     getContainer: getContainer,
     getDocument: getDocument,
     createContainer: createContainer,
-    createRecord: createRecord
+    createRecord: createRecord,
+    getPrivateContainer: getPrivateContainer
   }
 }
