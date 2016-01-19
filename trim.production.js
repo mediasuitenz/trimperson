@@ -41,7 +41,7 @@ function createRecord (title, container, extension, fileData, alternativeContain
 
   body = R.evolve({
     Title: R.ifElse(R.isNilOrEmpty, R.always('Untitled Document'), R.replace(/:/g, '-')),
-    RecordExtension: R.replace(/./g, ''),
+    RecordExtension: R.replace(/\./g, ''),
     Record: R.pipe(R.split(','), R.last)
   }, body)
 
