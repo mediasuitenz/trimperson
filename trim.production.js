@@ -13,6 +13,39 @@ var token;
  * @param {String} recordNo The TRIM RecordNo of the new document, if created.
  */
 
+/**
+ *
+ * @param {Object} body
+ * @param {String} body.Title
+ * @param {String} body.Container
+ * @param {String} body.RecordExtension
+ * @param {String[]} body.AlternativeContainers
+ * @param {String} body.Record
+ * @return {String|null} Error message. null if no errors are found
+ */
+function getCreateRecordBodyErrors(body) {
+
+  if (!body.Title) return 'A title is required'
+
+  if (!body.Container) return 'A container is required'
+
+  if (!body.RecordExtension) return 'An extension is required'
+  if (!R.test(/^[a-zA-Z]+$/, body.RecordExtension)) return 'Record extensions must only contain letters'
+
+  // a dataUrl header ends with a comma
+  const isProbablyDataUrl = R.pipe(
+      R.slice(0, 200),  // prevent checking the *entire* string
+      R.contains(',')
+  )
+  const validBase64Characters = /^[A-Za-z0-9+/=]+$/
+  if (!body.Record) return 'A file is required'
+  if (isProbablyDataUrl(body.Record)) return 'Record must be a base64 encoded string, not a dataUrl'
+  if (!R.test(validBase64Characters, body.Record)) return 'The file is not valid'
+
+  if (!R.isArrayLike(body.AlternativeContainers)) return 'alternativeContainers must be a list of strings'
+
+  return null
+}
 
 /**
  * @param {String} title Record Title
@@ -24,28 +57,22 @@ var token;
  */
 function createRecord (title, container, extension, fileData, alternativeContainers, callback) {
   if (typeof alternativeContainers === 'function') {
-    throw new Error('Migration Error: a new parameter was added: alternativeContainers')
-  }
-  alternativeContainers = alternativeContainers || [];
-  if (!R.isArrayLike(alternativeContainers)) {
-    throw new Error('alternativeContainers must be a list of strings: ' + alternativeContainers)
+    return callback(new Error('Migration Error: a new parameter was added: alternativeContainers'))
   }
 
-  var body = {
+  const body = {
     Title: title,
     Container: container,
     RecordExtension: extension,
-    AlternativeContainers: alternativeContainers,
+    AlternativeContainers: alternativeContainers || [],
     Record: fileData
   }
 
-  body = R.evolve({
-    Title: R.ifElse(R.isNilOrEmpty, R.always('Untitled Document'), R.replace(/:/g, '-')),
-    RecordExtension: R.replace(/\./g, ''),
-    Record: R.pipe(R.split(','), R.last)
-  }, body)
+  let errorMessage = getCreateRecordBodyErrors(body)
+  if (errorMessage) return callback(new Error(errorMessage))
 
-  var options = {
+
+  const options = {
     url: url + '/AddRecordToTrim?securityToken=' + token,
     method: 'post',
     body: body,
