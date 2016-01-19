@@ -31,16 +31,24 @@ function createRecord (title, container, extension, fileData, alternativeContain
     throw new Error('alternativeContainers must be a list of strings: ' + alternativeContainers)
   }
 
+  var body = {
+    Title: title,
+    Container: container,
+    RecordExtension: extension,
+    AlternativeContainers: alternativeContainers,
+    Record: fileData
+  }
+
+  body = R.evolve({
+    Title: R.ifElse(R.isNilOrEmpty, R.always('Untitled Document'), R.replace(/:/g, '-')),
+    RecordExtension: R.replace(/./g, ''),
+    Record: R.pipe(R.split(','), R.last)
+  }, body)
+
   var options = {
     url: url + '/AddRecordToTrim?securityToken=' + token,
     method: 'post',
-    body: {
-      Title: title,
-      Container: container,
-      RecordExtension: extension,
-      AlternativeContainers: alternativeContainers,
-      Record: fileData
-    },
+    body: body,
     json: true
   }
   request(options, function (err, res, responseBody) {
