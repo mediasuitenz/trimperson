@@ -61,7 +61,7 @@ function createRecord (title, container, extension, fileData, alternativeContain
   }
 
   const body = {
-    Title: title,
+    Title: R.replace(/:/g, '-', title),
     Container: container,
     RecordExtension: extension,
     AlternativeContainers: alternativeContainers || [],
