@@ -1,8 +1,24 @@
 /* global Given, Then, describe */
-var expect = require('chai').expect
+var chai = require('chai')
+var expect = chai.expect
+
 var nock = require('nock')
 var R = require('ramda-extended')
 
+var VALID_TITLE = 'Some Title'
+var INVALID_TITLE = null
+
+var VALID_EXTENSION = 'pdf'
+var INVALID_EXTENSION = '.pdf'
+
+var VALID_ALTERNATIVE_CONTAINERS = ['SomeContainer']
+var INVALID_ALTERNATIVE_CONTAINERS = null
+
+var VALID_CONTAINER = 'oijsdoi'
+var INVALID_CONTAINER = null
+
+var VALID_FILEDATA = 'R0lGOD lhCwAOAMQfAP////7+/vj4+Hh4eHd3d/v7+/Dw8HV1dfLy8ubm5vX19e3t7fr'
+var INVALID_FILEDATA = 'R0lGOD lhCwAOAMQfAP////7+/vj4+Hh4eHd3d/v7+/Dw8HV1dfLy8ubm5vX19e3t7fr'
 
 describe('When using v2.2.1 or less', () => {
   var trim, mockURL, mockToken
@@ -25,7 +41,7 @@ describe('When using v2.2.1 or less', () => {
     Given(() => containerId = 'asdfjk')
     Given(() => extensionType = '.mp4')
     Given(() => alternativeContainers = ['himark'])
-    Given(() => fileData = 'R0lGOD lhCwAOAMQfAP////7+/vj4+Hh4eHd3d/v7+/Dw8HV1dfLy8ubm5vX19e3t7fr')
+    Given(() => fileData = VALID_FILEDATA)
 
     var errReturn
     var dataReturn
@@ -145,7 +161,7 @@ describe('When using trimperson api', () => {
   })
 
   /*
-  CONSTANTS
+   CONSTANTS
    */
   describe('Privacy constants should be available', () => {
     Then('`PRIVACY_LEVELS` should exist', (done) => {
@@ -163,67 +179,96 @@ describe('When using trimperson api', () => {
   })
 
   /*
-  CREATE RECORD
+   CREATE RECORD
    */
   describe('To create a record', () => {
-    describe('Using the createRecord function', () => {
-      Then('createRecord should be a function', (done) => {
-        expect(trim.createRecord).to.be.a('function')
-        done()
-      })
+
+    Then('`createRecord` should be a function', (done) => {
+      expect(trim.createRecord).to.be.a('function')
+      done()
+    })
+    Then('`createPublicRecord` should be a function', (done) => {
+      expect(trim.createPublicRecord).to.be.a('function')
+      done()
+    })
+    Then('`createPrivateRecord` should be a function', (done) => {
+      expect(trim.createPrivateRecord).to.be.a('function')
+      done()
+    })
+    describe('Using the `createRecord` function', () => {
 
       describe('When the request succeeds', () => {
-        Then('It should return the container', (done) => {
-          throw new Error('Not implemented')
-          done()
+        var data, errReturn, dataReturn, createRecordMock
+        Given(() => data = {
+          title: VALID_TITLE,
+          container: VALID_CONTAINER,
+          extension: VALID_EXTENSION,
+          fileData: VALID_FILEDATA,
+          alternativeContainers: VALID_ALTERNATIVE_CONTAINERS,
+          privacyLevel: trim.PRIVACY_LEVELS.PUBLIC
         })
-      })
-      describe('When the request fails', () => {
-        Then('It should fail gracefully', (done) => {
-          throw new Error('Not implemented')
+        Given(() => {
+          createRecordMock = nock(mockURL)
+              .filteringRequestBody(R.always('*'))
+              .post('/AddRecordToTrim', '*')
+              .query({securityToken: mockToken})
+              .reply(201, {
+                RecordNo: '097097234'
+              })
+        })
+
+        When(done => {
+          trim.createRecord(data, (err, data) => {
+            errReturn = err
+            dataReturn = data
+            done()
+          })
+        })
+
+        Then('It should return the container', (done) => {
+          expect(errReturn).not.to.exist
+          expect(dataReturn).to.be.a('string')
+          expect(dataReturn).to.equal('097097234')
+          createRecordMock.done()
           done()
         })
       })
 
+      describe('When the request fails', () => {
+        var errReturn, dataReturn, data
+
+        Given(() => data = {
+          title: VALID_TITLE,
+          container: VALID_CONTAINER,
+          extension: VALID_EXTENSION,
+          fileData: VALID_FILEDATA,
+          alternativeContainers: VALID_ALTERNATIVE_CONTAINERS,
+          privacyLevel: trim.PRIVACY_LEVELS.PUBLIC
+        })
+        Given(() => {
+          createRecordMock = nock(mockURL)
+              .filteringRequestBody(R.always('*'))
+              .post('/AddRecordToTrim', '*')
+              .query({securityToken: mockToken})
+              .reply(500, {message: 'An error has occurred.'})
+        })
+        When((done) => {
+          trim.createRecord(data, function (err, data) {
+            errReturn = err
+            dataReturn = data
+            done()
+          })
+        })
+        Then('It should fail gracefully when TRIM responds without a record number number', (done) => {
+          expect(errReturn).to.exist
+          expect(dataReturn).not.to.exist
+          createRecordMock.done()
+          done()
+        })
+      })
     })
 
-    describe('Using the createPublicRecord function', () => {
-      Then('createPublicRecord should be a function', (done) => {
-        expect(trim.createPublicRecord).to.be.a('function')
-        done()
-      })
-      describe('When the request succeeds', () => {
-        Then('It should return the container', (done) => {
-          throw new Error('Not implemented')
-          done()
-        })
-      })
-      describe('When the request fails', () => {
-        Then('It should fail gracefully', (done) => {
-          throw new Error('Not implemented')
-          done()
-        })
-      })
-    })
 
-    describe('Using the createPrivateRecord function', () => {
-      Then('createPrivateRecord should be a function', (done) => {
-        expect(trim.createPrivateRecord).to.be.a('function')
-        done()
-      })
-      describe('When the request succeeds', () => {
-        Then('It should return the container', (done) => {
-          throw new Error('Not implemented')
-          done()
-        })
-      })
-      describe('When the request fails', () => {
-        Then('It should fail gracefully', (done) => {
-          throw new Error('Not implemented')
-          done()
-        })
-      })
-    })
   })
 
   /*
