@@ -10,37 +10,14 @@ npm install --save mediasuitenz/trimperson#v1.0.0
 ## Usage
 ### setup module:
 ```js
-var trim = require('trim')('http://path/to/trim/api', 'trim-api-security-token')
+var trim = require('trim')({
+  url: 'http://path/to/trim/api',
+  token: 'trim-api-security-token'
+})
 ```
 
 
-### use module:
-Get a single container
-```
-trim.getContainer ("BC140111", function (err, data)) {
-
-}
-```
-
-
-Create a new container
-```
-trim.createContainer (???, function (err, data)) {
-
-}
-```
-
-
-Create a new record
-```
-trim.createRecord () {
-
-}
-```
-
-
-
-### Hilltop data
+### TRIM data
 
 Data returned from find looks like:
 ```json
