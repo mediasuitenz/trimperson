@@ -114,9 +114,15 @@ function getDocument (trimId, callback) {
  * @param {Object[]}  container.records
  */
 
-function getContainerUsingMethod(method, trimId, securityToken, callback) {
+/**
+ *
+ * @param {String} method
+ * @param {String} trimId
+ * @param {containerCallback} callback
+ */
+function getContainerUsingMethod(method, trimId, callback) {
   var options = {
-    url: url + '/' + method + '?trimid=' + trimId + '&securityToken=' + securityToken,
+    url: url + '/' + method + '?trimid=' + trimId + '&securityToken=' + token,
     json: true
   };
   debug('GET %s', options.url);
@@ -126,19 +132,38 @@ function getContainerUsingMethod(method, trimId, securityToken, callback) {
 }
 
 /**
- * @param trimId
- * @param {containerCallback}  callback
+ *
+ * @param {String} trimId
+ * @param {Number} [privacyLevel]
+ * @param {containerCallback} callback
+ * @return {*}
  */
-function getContainer (trimId, callback) {
-  getContainerUsingMethod('GetContainer', trimId, token, callback);
+function getContainer (trimId, privacyLevel, callback) {
+  if (arguments.length === 2) {
+    callback = privacyLevel
+    privacyLevel = PRIVACY_LEVELS.PUBLIC
+  }
+  var method
+  switch (privacyLevel) {
+    case PRIVACY_LEVELS.PUBLIC:
+      method = 'GetContainer'
+      break
+    case  PRIVACY_LEVELS.PRIVATE:
+      method = 'getPrivateContainer'
+      break
+    default:
+      return callback(new Error('Invalid privacyLevel: ' + privacyLevel))
+  }
+  return getContainerUsingMethod(method, trimId, token, callback)
+
 }
 
-/**
- * @param trimId
- * @param {containerCallback}  callback
- */
+function getPublicContainer (trimId, callback) {
+  return getContainer(trimId, PRIVACY_LEVELS.PUBLIC, callback)
+}
+
 function getPrivateContainer (trimId, callback) {
-  getContainerUsingMethod('getPrivateContainer', trimId, token, callback);
+  return getContainer(trimId, PRIVACY_LEVELS.PRIVATE, callback)
 }
 
 /**
@@ -182,13 +207,16 @@ module.exports = function (apiUrl, apiToken, debug) {
     require('request-debug')(request);
 
   return {
-    getContainer: getContainer,
     PRIVACY_LEVELS: PRIVACY_LEVELS,
     getDocument: getDocument,
     createContainer: createContainer,
     createRecord: createRecord,
-    getPrivateContainer: getPrivateContainer
     createPublicRecord: createPublicRecord,
     createPrivateRecord: createPrivateRecord,
+
+    getContainer: getContainer,
+    getPublicContainer: getPublicContainer,
+    getPrivateContainer: getPrivateContainer,
+
   }
 }
