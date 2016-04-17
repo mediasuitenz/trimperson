@@ -31,27 +31,27 @@ var PRIVACY_LEVELS = {
 function createRecord(data, callback) {
   if (arguments.length === 5) {
     // Compatibility with usage before the alternativeContainers parameter was added
-    console.log('WARNING: The createRecord arguments have changed to accept a single data parameter instead of multiple')
+    debug('WARNING: The createRecord arguments have changed to accept a single data parameter instead of multiple')
     data = {
       title: arguments[0],
       container: arguments[1],
       extension: arguments[2],
       fileData: arguments[3],
       alternativeContainers: [],
-      callback: arguments[4],
       privacyLevel: 1
     }
+    callback = arguments[4]
   } else if (arguments.length === 6) {
     // Compatibility with usage after the alternativeContainers parameter was added
-    console.log('WARNING: The createRecord arguments have changed to accept a single data parameter instead of multiple')
+    debug('WARNING: The createRecord arguments have changed to accept a single data parameter instead of multiple')
     data = {
       title: arguments[0],
       container: arguments[1],
       extension: arguments[2],
       fileData: arguments[3],
-      alternativeContainers: arguments[4],
-      callback: arguments[5]
+      alternativeContainers: arguments[4]
     }
+    callback = arguments[5]
   }
 
   var options = {
@@ -152,10 +152,10 @@ function getContainer (trimId, privacyLevel, callback) {
       method = 'getPrivateContainer'
       break
     default:
+        console.log('INVALID PRIVACY LEVEL')
       return callback(new Error('Invalid privacyLevel: ' + privacyLevel))
   }
-  return getContainerUsingMethod(method, trimId, token, callback)
-
+  return getContainerUsingMethod(method, trimId, callback)
 }
 
 function getPublicContainer (trimId, callback) {
@@ -180,9 +180,9 @@ function createContainer (data, callback) {
     data = {
       folderName: arguments[0],
       privacyLevel: arguments[1],
-      parentFolder: arguments[2],
-      callback: arguments[3]
+      parentFolder: arguments[2]
     }
+    callback = arguments[3]
   }
   var body = {
     RecordNo: data.folderName,
@@ -206,7 +206,6 @@ function createPublicContainer (data, callback) {
 
 function createPrivateContainer (data, callback) {
   return createContainer(R.merge(data, {privacyLevel: PRIVACY_LEVELS.PRIVATE}), callback)
-
 }
 
 /**
