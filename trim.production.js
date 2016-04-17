@@ -5,6 +5,10 @@ var R = require('ramda-extended');
 var url;
 var token;
 
+var PRIVACY_LEVELS = {
+  PUBLIC: 1,
+  PRIVATE: 2
+}
 
 /**
  * Define the callback from the `createRecord` method
@@ -13,48 +17,76 @@ var token;
  * @param {String} recordNo The TRIM RecordNo of the new document, if created.
  */
 
-
 /**
- * @param {String} title Record Title
- * @param {String} container Name of the container to upload to
- * @param {String} extension without the period, e.g. "pdf" or "png" but not ".png"
- * @param {String} fileData base64 encoding of the date without the dateURL prefix stuff
- * @param {String[]} alternativeContainers Names of containers to link the file to in addition to the "container" param
- * @param {createRecordCallback} callback
+ * Uploads a Document to TRIM
+ * @param {Object}    data
+ * @param {String}    data.title
+ * @param {String}    data.container Primary container to upload to
+ * @param {String}    data.extension Omit the period, e.g. "pdf" or "png" but not ".png"
+ * @param {String}    data.fileData Base64 String without the prefix
+ * @param {String[]}  data.alternativeContainers A list of additional TRIM containers to upload to
+ * @param {Boolean}   data.privacyLevel public=1, private=2; higher numbers escalate privacy level
+ * @param {createRecordCallback}  callback
  */
-function createRecord (title, container, extension, fileData, alternativeContainers, callback) {
-  if (typeof alternativeContainers === 'function') {
-    throw new Error('Migration Error: a new parameter was added: alternativeContainers')
-  }
-  alternativeContainers = alternativeContainers || [];
-  if (!R.isArrayLike(alternativeContainers)) {
-    throw new Error('alternativeContainers must be a list of strings: ' + alternativeContainers)
+function createRecord(data, callback) {
+  if (arguments.length === 5) {
+    // Compatibility with usage before the alternativeContainers parameter was added
+    console.log('WARNING: The createRecord arguments have changed to accept a single data parameter instead of multiple')
+    data = {
+      title: arguments[0],
+      container: arguments[1],
+      extension: arguments[2],
+      fileData: arguments[3],
+      alternativeContainers: [],
+      callback: arguments[4],
+      privacyLevel: 1
+    }
+  } else if (arguments.length === 6) {
+    // Compatibility with usage after the alternativeContainers parameter was added
+    console.log('WARNING: The createRecord arguments have changed to accept a single data parameter instead of multiple')
+    data = {
+      title: arguments[0],
+      container: arguments[1],
+      extension: arguments[2],
+      fileData: arguments[3],
+      alternativeContainers: arguments[4],
+      callback: arguments[5]
+    }
   }
 
   var options = {
     url: url + '/AddRecordToTrim?securityToken=' + token,
     method: 'post',
     body: {
-      Title: title,
-      Container: container,
-      RecordExtension: extension,
-      AlternativeContainers: alternativeContainers,
-      Record: fileData
+      Title: data.title,
+      Container: data.container,
+      RecordExtension: data.extension,
+      AlternativeContainers: data.alternativeContainers || [],
+      Record: data.fileData,
+      Privacy: data.privacyLevel || PRIVACY_LEVELS.PUBLIC
     },
     json: true
   }
   request(options, function (err, res, responseBody) {
-    if (err) return callback(err);
+    if (err) return callback(err)
 
-    var trimRecordNo = responseBody.RecordNo;
+    var trimRecordNo = responseBody.RecordNo
 
     if (!trimRecordNo) {
-      debug('Invalid response %j', responseBody);
-      return callback(new Error('Error uploading document to TRIM: Missing RecordNo response. ' + responseBody.message));
+      debug('Invalid response %j', responseBody)
+      return callback(new Error('Error uploading document to TRIM: Missing RecordNo response. ' + responseBody.message))
     }
-    debug('Created record with recordNo %s', trimRecordNo);
+    debug('Created record with recordNo %s', trimRecordNo)
     return callback(null, trimRecordNo)
-  });
+  })
+}
+
+function createPublicRecord(data, callback) {
+  return createRecord(R.merge(data, {privacyLevel: PRIVACY_LEVELS.PUBLIC}), callback)
+}
+
+function createPrivateRecord(data, callback) {
+  return createRecord(R.merge(data, {privacyLevel: PRIVACY_LEVELS.PRIVATE}), callback)
 }
 
 
@@ -151,9 +183,12 @@ module.exports = function (apiUrl, apiToken, debug) {
 
   return {
     getContainer: getContainer,
+    PRIVACY_LEVELS: PRIVACY_LEVELS,
     getDocument: getDocument,
     createContainer: createContainer,
     createRecord: createRecord,
     getPrivateContainer: getPrivateContainer
+    createPublicRecord: createPublicRecord,
+    createPrivateRecord: createPrivateRecord,
   }
 }
