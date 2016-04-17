@@ -351,81 +351,105 @@ describe('When using trimperson api', () => {
   })
 
   /*
-  GET CONTAINER
+   GET CONTAINER
    */
   describe('To get a container', () => {
-    describe('Using the `getContainer` function', () => {
-      Then('`getContainer` should be a function', (done) => {
-        expect(trim.getContainer).to.be.a('function')
-        done()
-      })
-
-      describe('When the container exists', () => {
-        Then('It should return the container', (done) => {
-          throw new Error('Not implemented')
-          done()
-        })
-      })
-      describe('When the container doesnt exist', () => {
-        Then('It should fail gracefully', (done) => {
-          throw new Error('Not implemented')
-          done()
-        })
-      })
+    Then('`getContainer` should be a function', (done) => {
+      expect(trim.getContainer).to.be.a('function')
+      done()
+    })
+    Then('`getPublicContainer` should be a function', (done) => {
+      expect(trim.getPublicContainer).to.be.a('function')
+      done()
+    })
+    Then('`getPrivateContainer` should be a function', (done) => {
+      expect(trim.getPrivateContainer).to.be.a('function')
+      done()
     })
 
-    describe('Using the `getPublicContainer` function', () => {
-      Then('`getPublicContainer` should be a function', (done) => {
-        expect(trim.getPublicContainer).to.be.a('function')
-        done()
-      })
-      describe('When the container exists', () => {
-        Then('It should return the container', (done) => {
-          throw new Error('Not implemented')
-          done()
-        })
-      })
-      describe('When the container doesnt exist', () => {
-        Then('It should fail gracefully', (done) => {
-          throw new Error('Not implemented')
-          done()
-        })
-      })
-    })
-
-    describe('Using the `getPrivateContainer` function', () => {
-      Then('`getPrivateContainer` should be a function', (done) => {
-        expect(trim.getPrivateContainer).to.be.a('function')
-        done()
-      })
-      describe('When the container exists', () => {
-        Then('It should return the container', (done) => {
-          throw new Error('Not implemented')
-          done()
-        })
-      })
-      describe('When the container doesnt exist', () => {
-        Then('It should fail gracefully', (done) => {
-          throw new Error('Not implemented')
-          done()
-        })
-      })
-    })
-
-  })
-
-  describe('using the `getContainer` function', () => {
-
-    describe('when invoking the `getContainer` funciton', () => {
+    describe('If the public container is requested', () => {
       var getContainerMock
-      var fakeID = 'fakecontainerid'
-      var dataReturn
-      var errReturn
+      Given(() => {
+        getContainerMock = nock(mockURL)
+            .get('/GetContainer')
+            .query({trimid: VALID_CONTAINER, securityToken: mockToken})
+            .reply(200)
+      })
+      When(done => {
+        trim.getContainer(VALID_CONTAINER, trim.PRIVACY_LEVELS.PUBLIC, () => done())
+      })
+      Then('`/getContainer` is called', done => {
+        getContainerMock.done()
+        done()
+      })
+    })
+
+    describe('If the private container is requested', () => {
+      var getContainerMock
+      Given(() => {
+        getContainerMock = nock(mockURL)
+            .get('/getPrivateContainer')
+            .query({trimid: VALID_CONTAINER, securityToken: mockToken})
+            .reply(200)
+      })
+      When(done => {
+        trim.getContainer(VALID_CONTAINER, trim.PRIVACY_LEVELS.PRIVATE, () => done())
+      })
+      Then('`/getPrivateContainer` is called', done => {
+        getContainerMock.done()
+        done()
+      })
+    })
+
+    describe('If no privacy level is supplied', () => {
+      var getContainerMock
+      Given(() => {
+        getContainerMock = nock(mockURL)
+            .get('/GetContainer')
+            .query({trimid: VALID_CONTAINER, securityToken: mockToken})
+            .reply(200)
+      })
+      When(done => {
+        trim.getContainer(VALID_CONTAINER, () => done())
+      })
+      Then('The public container is requested', done => {
+        getContainerMock.done()
+        done()
+      })
+    })
+
+    describe('With escalated permissions and an invalid token', () => {
+      var getContainerMock, dataReturn, errReturn
+      Given(() => {
+        getContainerMock = nock(mockURL)
+            .get('/getPrivateContainer')
+            .query({trimid: VALID_CONTAINER, securityToken: mockToken})
+            .reply(401, {
+              message: 'Authorization has been denied for this request.'
+            })
+      })
+      When(done => {
+        trim.getContainer(VALID_CONTAINER, trim.PRIVACY_LEVELS.PRIVATE, (err, data) => {
+          errReturn = err
+          dataReturn = data
+          done()
+        })
+      })
+      Then('It should return an error', done => {
+        expect(errReturn).to.exist
+        expect(dataReturn).not.to.exist
+        getContainerMock.done()
+        done()
+      })
+    })
+
+    describe('When the container exists', () => {
+      var getContainerMock, dataReturn, errReturn
 
       Given(() => {
         getContainerMock = nock(mockURL)
             .get('/GetContainer')
-            .query({trimid: fakeID, securityToken: mockToken})
+            .query({trimid: VALID_CONTAINER, securityToken: mockToken})
             .reply(200, {
               containerNo: 'someid',
               subContainers: []
@@ -433,22 +457,49 @@ describe('When using trimperson api', () => {
       })
 
       When((done) => {
-        trim.getContainer(fakeID, (err, data) => {
+        trim.getContainer(VALID_CONTAINER, trim.PRIVACY_LEVELS.PUBLIC, (err, data) => {
           dataReturn = data
           errReturn = err
           done()
         })
       })
 
-      Then('it should resolve without error', (done) => {
+      Then('It should return the container', (done) => {
         expect(errReturn).not.to.exist
-        expect(dataReturn).to.exist
+        expect(dataReturn).to.be.a('object')
         expect(dataReturn.containerNo).to.equal('someid')
         expect(dataReturn.subContainers).to.be.a('array')
-        getContainerMock.done() // throws an error if no request was recorded
+        getContainerMock.done()
+        done()
+      })
+
+    })
+    describe('When the container doesnt exist', () => {
+      var getContainerMock, dataReturn, errReturn
+
+      Given(() => {
+        getContainerMock = nock(mockURL)
+            .get('/GetContainer')
+            .query({trimid: VALID_CONTAINER, securityToken: mockToken})
+            .reply(200, null)
+      })
+
+      When((done) => {
+        trim.getContainer(VALID_CONTAINER, trim.PRIVACY_LEVELS.PUBLIC, (err, data) => {
+          dataReturn = data
+          errReturn = err
+          done()
+        })
+      })
+
+      Then('It should return an error', (done) => {
+        expect(errReturn).to.exist
+        expect(dataReturn).not.to.exist
+        getContainerMock.done()
         done()
       })
     })
+
   })
 
   describe('when using the createContainer function', () => {

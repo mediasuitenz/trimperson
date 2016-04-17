@@ -100,6 +100,9 @@ function getDocument (trimId, callback) {
     url: url + '/get?id=' + trimId + '&securityToken=' + token
   }
   request.get(options, function (err, res, responseBody) {
+    if (res.statusCode === 404) {
+      return callback(new Error('Not found'))
+    }
     callback(err, responseBody)
   })
 }
@@ -127,7 +130,15 @@ function getContainerUsingMethod(method, trimId, callback) {
   }
   debug('GET %s', options.url)
   request.get(options, function (err, res, responseBody) {
-    callback(err, responseBody)
+    if (err) {
+      callback(err)
+    } else if (res.statusCode === 401) {
+      callback(new Error('Unauthorized'))
+    } else if (responseBody == null) {
+      callback(new Error('Not Found'))
+    } else {
+      callback(err, responseBody)
+    }
   })
 }
 
@@ -152,7 +163,6 @@ function getContainer (trimId, privacyLevel, callback) {
       method = 'getPrivateContainer'
       break
     default:
-        console.log('INVALID PRIVACY LEVEL')
       return callback(new Error('Invalid privacyLevel: ' + privacyLevel))
   }
   return getContainerUsingMethod(method, trimId, callback)
