@@ -160,6 +160,14 @@ describe('When using trimperson api', () => {
     done()
   })
 
+  Then('Unit test: isValidPrivacyLevel', (done) => {
+    expect(trim.isValidPrivacyLevel(trim.PRIVACY_LEVELS.PUBLIC)).to.equal(true)
+    expect(trim.isValidPrivacyLevel(trim.PRIVACY_LEVELS.PRIVATE)).to.equal(true)
+    expect(trim.isValidPrivacyLevel(3)).to.equal(false)
+    done()
+  })
+
+
   /*
    CONSTANTS
    */

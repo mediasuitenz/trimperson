@@ -10,6 +10,8 @@ var PRIVACY_LEVELS = {
   PRIVATE: 2
 }
 
+var isValidPrivacyLevel = R.contains(R.__, R.values(PRIVACY_LEVELS))
+
 /**
  * Define the callback from the `createRecord` method
  * @callback createRecordCallback
@@ -52,6 +54,9 @@ function createRecord(data, callback) {
       alternativeContainers: arguments[4]
     }
     callback = arguments[5]
+  }
+  if (data.privacyLevel != null && !isValidPrivacyLevel(data.privacyLevel)) {
+    return callback(new Error('Invalid privacy level: ' + data.privacyLevel))
   }
 
   var options = {
@@ -237,6 +242,7 @@ module.exports = function (apiUrl, apiToken, debug) {
 
   return {
     PRIVACY_LEVELS: PRIVACY_LEVELS,
+    isValidPrivacyLevel: isValidPrivacyLevel,
     getDocument: getDocument,
 
     createRecord: createRecord,
