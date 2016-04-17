@@ -166,27 +166,46 @@ function getPrivateContainer (trimId, callback) {
   return getContainer(trimId, PRIVACY_LEVELS.PRIVATE, callback)
 }
 
+
 /**
- *
- * @param folderName
- * @param privacy
- * @param parentFolder
- * @param callback
+ * @param {Object} data
+ * @param {String} data.folderName
+ * @param {Number} data.privacyLevel
+ * @param {String} data.parentFolder
+ * @param {???} callback
  */
-function createContainer (folderName, privacy, parentFolder, callback) {
+function createContainer (data, callback) {
+  if (arguments.length === 4) {
+    // Compatibility with old api
+    data = {
+      folderName: arguments[0],
+      privacyLevel: arguments[1],
+      parentFolder: arguments[2],
+      callback: arguments[3]
+    }
+  }
   var body = {
-    RecordNo: folderName,
-    Title: folderName,
-    Privacy: privacy,
-    ParentFolder: parentFolder
+    RecordNo: data.folderName,
+    Title: data.folderName,
+    Privacy: data.privacyLevel,
+    ParentFolder: data.parentFolder
   };
   var options = {
     url: url + '/CreateContainer?securityToken=' + token,
     json: body
   };
   request.post(options, function (err, res, responseBody) {
-    callback(err, responseBody);
+    callback(err, responseBody)
   });
+}
+
+function createPublicContainer (data, callback) {
+  return createContainer(R.merge(data, {privacyLevel: PRIVACY_LEVELS.PUBLIC}), callback)
+}
+
+function createPrivateContainer (data, callback) {
+  return createContainer(R.merge(data, {privacyLevel: PRIVACY_LEVELS.PRIVATE}), callback)
+
 }
 
 /**
@@ -209,7 +228,7 @@ module.exports = function (apiUrl, apiToken, debug) {
   return {
     PRIVACY_LEVELS: PRIVACY_LEVELS,
     getDocument: getDocument,
-    createContainer: createContainer,
+
     createRecord: createRecord,
     createPublicRecord: createPublicRecord,
     createPrivateRecord: createPrivateRecord,
@@ -217,6 +236,10 @@ module.exports = function (apiUrl, apiToken, debug) {
     getContainer: getContainer,
     getPublicContainer: getPublicContainer,
     getPrivateContainer: getPrivateContainer,
+
+    createContainer: createContainer,
+    createPublicContainer: createPublicContainer,
+    createPrivateContainer: createPrivateContainer
 
   }
 }
