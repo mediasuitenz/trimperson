@@ -145,6 +145,24 @@ describe('When using trimperson api', () => {
   })
 
   /*
+  CONSTANTS
+   */
+  describe('Privacy constants should be available', () => {
+    Then('`PRIVACY_LEVELS` should exist', (done) => {
+      expect(trim.PRIVACY_LEVELS).to.be.a('object')
+      done()
+    })
+    Then('`PRIVACY_LEVELS` should have the correct PUBLIC value', (done) => {
+      expect(trim.PRIVACY_LEVELS.PUBLIC).to.equal(1)
+      done()
+    })
+    Then('`PRIVACY_LEVELS` should have the correct PRIVATE value', (done) => {
+      expect(trim.PRIVACY_LEVELS.PRIVATE).to.equal(2)
+      done()
+    })
+  })
+
+  /*
   CREATE RECORD
    */
   describe('To create a record', () => {
