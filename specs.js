@@ -259,7 +259,7 @@ describe('When using trimperson api', () => {
             done()
           })
         })
-        Then('It should fail gracefully when TRIM responds without a record number number', (done) => {
+        Then('It should return an error', (done) => {
           expect(errReturn).to.exist
           expect(dataReturn).not.to.exist
           createRecordMock.done()
@@ -272,7 +272,7 @@ describe('When using trimperson api', () => {
   })
 
   /*
-  GET RECORD
+   GET RECORD
    */
   describe('To get a single record', () => {
     Then('`getDocument` should be a function', (done) => {
@@ -281,17 +281,14 @@ describe('When using trimperson api', () => {
     })
 
     describe('When the record exists', () => {
-      var documentId
-      var getDocumentMock
-      var dataReturn
-      var errReturn
+      var documentId, getDocumentMock, dataReturn, errReturn
 
       Given(() => documentId = 'someIDthatPointsToADocument')
       Given(() => {
         getDocumentMock = nock(mockURL)
             .get('/get')
             .query({id: documentId, securityToken: mockToken})
-            .reply(200, 'R0lGOD lhCwAOAMQfAP////7+/vj4+Hh4eHd3d/v7+/Dw8')
+            .reply(200, VALID_FILEDATA)
       })
 
       When((done) => {
@@ -304,67 +301,39 @@ describe('When using trimperson api', () => {
 
       Then('It should return a document', (done) => {
         expect(errReturn).not.to.exist
-        expect(dataReturn).to.exist
+        expect(dataReturn).to.equal(VALID_FILEDATA)
         getDocumentMock.done()
         done()
       })
     })
     describe('When the record doesnt exist', () => {
-      Then('It should fail gracefully', (done) => {
-        throw new Error('What happens when we cant find a record')
+      var documentId, getDocumentMock, dataReturn, errReturn
+
+      Given(() => documentId = 'someIDthatPointsToADocument')
+      Given(() => {
+        getDocumentMock = nock(mockURL)
+            .get('/get')
+            .query({id: documentId, securityToken: mockToken})
+            .reply(404, '')
+      })
+
+      When((done) => {
+        trim.getDocument(documentId, function (err, data) {
+          dataReturn = data
+          errReturn = err
+          done()
+        })
+      })
+
+      Then('It should return an error', (done) => {
+        expect(errReturn).to.exist
+        expect(dataReturn).not.to.exist
+        getDocumentMock.done()
         done()
       })
     })
   })
 
-  /*
-  CREATE CONTAINER
-   */
-  describe('To create a container', () => {
-    describe('Using the createContainer function', () => {
-      Then('createContainer should be a function', (done) => {
-        expect(trim.createContainer).to.be.a('function')
-        done()
-      })
-      describe('When the request succeeds', () => {
-        Then('It should return the container', (done) => {
-          throw new Error('Not implemented')
-          done()
-        })
-      })
-      describe('When the request fails', () => {
-        Then('It should fail gracefully', (done) => {
-          throw new Error('Not implemented')
-          done()
-        })
-      })
-
-    })
-
-    describe('Using the createPublicContainer function', () => {
-      Then('createPublicContainer should be a function', (done) => {
-        expect(trim.createPublicContainer).to.be.a('function')
-        done()
-      })
-      describe('When the request succeeds', () => {
-        Then('It should return the container', (done) => {
-          throw new Error('Not implemented')
-          done()
-        })
-      })
-      describe('When the request fails', () => {
-        Then('It should fail gracefully', (done) => {
-          throw new Error('Not implemented')
-          done()
-        })
-      })
-    })
-
-    describe('Using the createPrivateContainer function', () => {
-      Then('createPrivateContainer should be a function', (done) => {
-        expect(trim.createPrivateContainer).to.be.a('function')
-        done()
-      })
       describe('When the request succeeds', () => {
         Then('It should return the container', (done) => {
           throw new Error('Not implemented')
