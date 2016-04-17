@@ -183,11 +183,19 @@ function getPrivateContainer (trimId, callback) {
 
 
 /**
+ * @callback createContainerCallback
+ * @param {Error} error
+ * @param {Object} response
+ * @param {String} response.RecordNo
+ */
+
+/**
  * @param {Object} data
- * @param {String} data.folderName
+ * @param {String} data.folderName the RecordNo
  * @param {Number} data.privacyLevel
- * @param {String} data.parentFolder
- * @param {???} callback
+ * @param {String} [data.parentFolder]
+ * @param {String} [data.title] Display title? Not actually sure what this does
+ * @param {createContainerCallback} callback
  */
 function createContainer (data, callback) {
   if (arguments.length === 4) {
@@ -201,17 +209,32 @@ function createContainer (data, callback) {
   }
   var body = {
     RecordNo: data.folderName,
-    Title: data.folderName,
-    Privacy: data.privacyLevel,
+    Title: data.title || data.folderName,
+    Privacy: data.privacyLevel || PRIVACY_LEVELS.PUBLIC,
     ParentFolder: data.parentFolder
   }
+  // parentFolder currently returns a 500 error
   var options = {
     url: url + '/CreateContainer?securityToken=' + token,
     json: body
   }
 
   request.post(options, function (err, res, responseBody) {
-    callback(err, responseBody)
+    if (err) {
+      callback(err)
+    } else if (res.statusCode === 401) {
+      callback(new Error('Unauthorized'))
+    } else if (parseInt(res.statusCode / 100, 10) === 5) {
+      callback(new Error('Server Error'))
+    } else if (responseBody && !responseBody.RecordNo) {
+      callback(new Error('Error creating container'))
+    } else if (res.statusCode === 204) {
+      // if no response body, then the container already existed... what do we do?
+      // TODO: Don't know if this is the best course of action...
+      callback(null, {RecordNo: data.folderName})
+    } else {
+      callback(null, responseBody)
+    }
   })
 }
 

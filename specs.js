@@ -8,6 +8,9 @@ var R = require('ramda-extended')
 var VALID_TITLE = 'Some Title'
 var INVALID_TITLE = null
 
+var VALID_RECORD_NO = 'SomeRecordNo'
+var INVALID_RECORD_NO = ''
+
 var VALID_EXTENSION = 'pdf'
 var INVALID_EXTENSION = '.pdf'
 
@@ -18,7 +21,10 @@ var VALID_CONTAINER = 'oijsdoi'
 var INVALID_CONTAINER = null
 
 var VALID_FILEDATA = 'R0lGOD lhCwAOAMQfAP////7+/vj4+Hh4eHd3d/v7+/Dw8HV1dfLy8ubm5vX19e3t7fr'
-var INVALID_FILEDATA = 'R0lGOD lhCwAOAMQfAP////7+/vj4+Hh4eHd3d/v7+/Dw8HV1dfLy8ubm5vX19e3t7fr'
+var INVALID_FILEDATA = ''
+
+var VALID_FOLDER_NAME = 'Some folder'
+var INVALID_FOLDER_NAME = ''
 
 describe('When using v2.2.1 or less', () => {
   var trim, mockURL, mockToken
@@ -50,7 +56,7 @@ describe('When using v2.2.1 or less', () => {
           .filteringRequestBody(R.always('*'))
           .post('/AddRecordToTrim', '*')
           .query({securityToken: mockToken})
-          .reply(201, {RecordNo: '123456'})
+          .reply(201, {RecordNo: VALID_RECORD_NO})
     })
     When((done) => {
       trim.createRecord(title, containerId, extensionType, fileData, alternativeContainers, function (err, data) {
@@ -63,7 +69,7 @@ describe('When using v2.2.1 or less', () => {
       expect(errReturn).not.to.exist
       expect(dataReturn).to.exist
       expect(dataReturn).to.be.a('string')
-      expect(dataReturn).to.equal('123456')
+      expect(dataReturn).to.equal(VALID_RECORD_NO)
       createRecordMock.done()
       done()
     })
@@ -73,7 +79,7 @@ describe('When using v2.2.1 or less', () => {
   describe('You should be able to call `createRecord` with 4 arguments (no alternativeContainers)', () => {
     var title, containerId, extensionType, fileData, createRecordMock
 
-    Given(() => title = 'inside-out')
+    Given(() => title = VALID_FOLDER_NAME)
     Given(() => containerId = 'asdfjk')
     Given(() => extensionType = '.mp4')
     Given(() => fileData = 'R0lGOD lhCwAOAMQfAP////7+/vj4+Hh4eHd3d/v7+/Dw8HV1dfLy8ubm5vX19e3t7fr')
@@ -85,7 +91,7 @@ describe('When using v2.2.1 or less', () => {
           .filteringRequestBody(R.always('*'))
           .post('/AddRecordToTrim', '*')
           .query({securityToken: mockToken})
-          .reply(201, {RecordNo: '123456'})
+          .reply(201, {RecordNo: VALID_RECORD_NO})
     })
     When((done) => {
       trim.createRecord(title, containerId, extensionType, fileData, function (err, data) {
@@ -98,7 +104,7 @@ describe('When using v2.2.1 or less', () => {
       expect(errReturn).not.to.exist
       expect(dataReturn).to.exist
       expect(dataReturn).to.be.a('string')
-      expect(dataReturn).to.equal('123456')
+      expect(dataReturn).to.equal(VALID_RECORD_NO)
       createRecordMock.done()
       done()
     })
@@ -110,16 +116,16 @@ describe('When using v2.2.1 or less', () => {
     var dataReturn
     var errReturn
 
-    Given(() => folder = 'someFolder')
+    Given(() => folder = VALID_FOLDER_NAME)
     Given(() => parentFolder = 'someParentFolder')
-    Given(() => privacySetting = 'jamesBond')
+    Given(() => privacySetting = trim.PRIVACY_LEVELS.PUBLIC)
     Given(() => {
       createContainerMock = nock(mockURL)
           .filteringRequestBody(R.always('*'))
           .post('/CreateContainer', '*')
           .query({securityToken: mockToken})
           .reply(201, {
-            msg: 'create response' // TODO determine the shape of the response
+            RecordNo: VALID_FOLDER_NAME
           })
     })
     When((done) => {
@@ -342,20 +348,207 @@ describe('When using trimperson api', () => {
     })
   })
 
-      describe('When the request succeeds', () => {
-        Then('It should return the container', (done) => {
-          throw new Error('Not implemented')
+  /*
+   CREATE CONTAINER
+   */
+  describe('To create a container', () => {
+    Then('`createContainer` should be a function', (done) => {
+      expect(trim.createContainer).to.be.a('function')
+      done()
+    })
+    Then('`createPublicContainer` should be a function', (done) => {
+      expect(trim.createPublicContainer).to.be.a('function')
+      done()
+    })
+    Then('`createPrivateContainer` should be a function', (done) => {
+      expect(trim.createPrivateContainer).to.be.a('function')
+      done()
+    })
+
+    describe('If all inputs are valid', () => {
+      var createContainerMock, dataReturn, errReturn, data
+
+      Given(() => data = {
+        folderName: VALID_FOLDER_NAME,
+        privacyLevel: trim.PRIVACY_LEVELS.PUBLIC
+      })
+      Given(() => {
+        createContainerMock = nock(mockURL)
+            .filteringRequestBody(R.always('*'))
+            .post('/CreateContainer', '*')
+            .query({securityToken: mockToken})
+            .reply(201, {
+              RecordNo: VALID_FOLDER_NAME
+            })
+      })
+      When(done => {
+        trim.createContainer(data, (err, body) => {
+          errReturn = err
+          dataReturn = body
           done()
         })
       })
-      describe('When the request fails', () => {
-        Then('It should fail gracefully', (done) => {
-          throw new Error('Not implemented')
-          done()
-        })
+      Then('The container is created', done => {
+        expect(errReturn).not.to.exist
+        expect(dataReturn).to.be.a('object')
+        expect(dataReturn.RecordNo).to.equal(VALID_FOLDER_NAME)
+        createContainerMock.done()
+        done()
       })
     })
 
+    describe('If all no privacy is specified', () => {
+      var createContainerMock, dataReturn, errReturn, data
+
+      Given(() => data = {
+        folderName: VALID_FOLDER_NAME
+      })
+      Given(() => {
+        createContainerMock = nock(mockURL)
+            .filteringRequestBody(R.always('*'))
+            .post('/CreateContainer', '*')
+            .query({securityToken: mockToken})
+            .reply(201, {
+              RecordNo: VALID_FOLDER_NAME
+            })
+      })
+      When(done => {
+        trim.createContainer(data, (err, body) => {
+          errReturn = err
+          dataReturn = body
+          done()
+        })
+      })
+      Then('The container is created', done => {
+        expect(errReturn).not.to.exist
+        expect(dataReturn).to.be.a('object')
+        expect(dataReturn.RecordNo).to.equal(VALID_FOLDER_NAME)
+        createContainerMock.done()
+        done()
+      })
+    })
+
+    describe('No folder name is provided', () => {
+      var createContainerMock, dataReturn, errReturn, data
+
+      Given(() => data = {
+        folderName: INVALID_FOLDER_NAME
+      })
+      Given(() => {
+        createContainerMock = nock(mockURL)
+            .filteringRequestBody(R.always('*'))
+            .post('/CreateContainer', '*')
+            .query({securityToken: mockToken})
+            .reply(500, {
+              RecordNo: null
+            })
+      })
+      When(done => {
+        trim.createContainer(data, (err, body) => {
+          errReturn = err
+          dataReturn = body
+          done()
+        })
+      })
+      Then('The container is not created', done => {
+        expect(errReturn).to.exist
+        expect(dataReturn).not.to.exist
+        createContainerMock.done()
+        done()
+      })
+    })
+
+    describe('With escalated permissions and an invalid token', () => {
+      var createContainerMock, dataReturn, errReturn, data
+
+      Given(() => data = {
+        folderName: VALID_FOLDER_NAME,
+        privacyLevel: trim.PRIVACY_LEVELS.PUBLIC
+      })
+      Given(() => {
+        createContainerMock = nock(mockURL)
+            .filteringRequestBody(R.always('*'))
+            .post('/CreateContainer', '*')
+            .query({securityToken: mockToken})
+            .reply(401, {
+              message: 'Authorization has been denied for this request.'
+            })
+      })
+      When(done => {
+        trim.createContainer(data, (err, body) => {
+          errReturn = err
+          dataReturn = body
+          done()
+        })
+      })
+      Then('An error is returned', done => {
+        expect(errReturn).to.exist
+        expect(dataReturn).not.to.exist
+        createContainerMock.done()
+        done()
+      })
+    })
+
+    describe('A null `RecordNo` is returned', () => {
+      var createContainerMock, dataReturn, errReturn, data
+
+      Given(() => data = {
+        folderName: VALID_FOLDER_NAME,
+        privacyLevel: trim.PRIVACY_LEVELS.PUBLIC
+      })
+      Given(() => {
+        createContainerMock = nock(mockURL)
+            .filteringRequestBody(R.always('*'))
+            .post('/CreateContainer', '*')
+            .query({securityToken: mockToken})
+            .reply(201, {
+              RecordNo: null
+            })
+      })
+      When(done => {
+        trim.createContainer(data, (err, body) => {
+          errReturn = err
+          dataReturn = body
+          done()
+        })
+      })
+      Then('An error is returned', done => {
+        expect(errReturn).to.exist
+        expect(dataReturn).not.to.exist
+        createContainerMock.done()
+        done()
+      })
+    })
+
+    describe('The container already exists', () => {
+      var createContainerMock, dataReturn, errReturn, data
+
+      Given(() => data = {
+        folderName: VALID_FOLDER_NAME,
+        privacyLevel: trim.PRIVACY_LEVELS.PUBLIC
+      })
+      Given(() => {
+        createContainerMock = nock(mockURL)
+            .filteringRequestBody(R.always('*'))
+            .post('/CreateContainer', '*')
+            .query({securityToken: mockToken})
+            .reply(204)
+      })
+      When(done => {
+        trim.createContainer(data, (err, body) => {
+          errReturn = err
+          dataReturn = body
+          done()
+        })
+      })
+      Then('An error is returned', done => {
+        expect(errReturn).not.to.exist
+        expect(dataReturn).to.exist
+        expect(dataReturn.RecordNo).to.equal(VALID_FOLDER_NAME)
+        createContainerMock.done()
+        done()
+      })
+    })
   })
 
   /*
@@ -508,75 +701,5 @@ describe('When using trimperson api', () => {
       })
     })
 
-  })
-
-  describe('when using the createContainer function', () => {
-    var createContainerMock, folder, parentFolder, privacySetting
-    var dataReturn
-    var errReturn
-
-    Given(() => folder = 'someFolder')
-    Given(() => parentFolder = 'someParentFolder')
-    Given(() => privacySetting = 'jamesBond')
-    Given(() => {
-      createContainerMock = nock(mockURL)
-          .filteringRequestBody(R.always('*'))
-          .post('/CreateContainer', '*')
-          .query({securityToken: mockToken})
-          .reply(201, {
-            msg: 'create response' // TODO determine the shape of the response
-          })
-    })
-    When((done) => {
-      trim.createContainer(folder, privacySetting, parentFolder, function (err, data) {
-        errReturn = err
-        dataReturn = data
-        done()
-      })
-    })
-    Then('it should be able to create a container', (done) => {
-      expect(errReturn).not.to.exist
-      expect(dataReturn).to.exist
-      createContainerMock.done()
-      done()
-    })
-  })
-
-  describe('when using the createRecord function', () => {
-    var title, containerId, extensionType, alternativeContainers, fileData
-
-    Given(() => title = 'inside-out')
-    Given(() => containerId = 'asdfjk')
-    Given(() => extensionType = '.mp4')
-    Given(() => alternativeContainers = ['himark'])
-    Given(() => fileData = 'R0lGOD lhCwAOAMQfAP////7+/vj4+Hh4eHd3d/v7+/Dw8HV1dfLy8ubm5vX19e3t7fr')
-
-    describe('when the backend accepts the record', () => {
-    })
-
-    describe('when the TRIM fails to recieve a createRecord request', () => {
-      var errReturn
-      var dataReturn
-      Given(() => {
-        createRecordMock = nock(mockURL)
-            .filteringRequestBody(R.always('*'))
-            .post('/AddRecordToTrim', '*')
-            .query({securityToken: mockToken})
-            .reply(500, {msg: 'it failed'})
-      })
-      When((done) => {
-        trim.createRecord(title, containerId, extensionType, fileData, alternativeContainers, function (err, data) {
-          errReturn = err
-          dataReturn = data
-          done()
-        })
-      })
-      Then('it should fail when TRIM responds without a record number number', (done) => {
-        expect(errReturn).to.exist
-        expect(dataReturn).not.to.exist
-        createRecordMock.done()
-        done()
-      })
-    })
   })
 })
