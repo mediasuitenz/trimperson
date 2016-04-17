@@ -3,11 +3,15 @@
   "version": "2.2.1",
   "description": "TRIM API wrapper",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mediasuitenz/trimperson.git"
+  },
   "scripts": {
     "deploy:patch": "npm run test && node_modules/.bin/xyz -i patch",
     "deploy:minor": "npm run test && node_modules/.bin/xyz -i minor",
     "deploy:major": "npm run test && node_modules/.bin/xyz -i major",
-    "test": "node_modules/.bin/mocha -u mocha-given --compilers js:mocha-babel specs.js",
+    "test": "node_modules/.bin/mocha -u mocha-given --compilers js:babel-core/register specs.js",
     "test:watch": "node_modules/.bin/testem"
   },
   "author": "Mediasuite NZ",
@@ -20,8 +24,8 @@
   },
   "devDependencies": {
     "chai": "^3.4.0",
-    "mocha": "^2.3.3",
-    "mocha-babel": "^3.0.0",
+    "mocha": "^2.4.5",
+    "mocha-babel": "^3.0.3",
     "mocha-given": "^0.1.3",
     "nock": "^2.17.0",
     "testem": "^0.9.8",

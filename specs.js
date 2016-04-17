@@ -18,10 +18,16 @@ describe('when using trimperson api', () => {
     })
   })
 
-  Then('it should have created a trimperson object', () => expect(trim).to.be.a('object'))
+  Then('it should have created a trimperson object', (done) => {
+    expect(trim).to.be.a('object')
+    done()
+  })
 
   describe('using the getContainer function', () => {
-    Then('the function should exist on the trim instance', () => expect(trim.getContainer).to.be.a('function'))
+    Then('the function should exist on the trim instance', (done) => {
+      expect(trim.getContainer).to.be.a('function')
+      done()
+    })
 
     describe('when invoking the getContainer funciton', () => {
       var getContainerMock
@@ -47,12 +53,13 @@ describe('when using trimperson api', () => {
         })
       })
 
-      Then('it should resolve without error', () => {
+      Then('it should resolve without error', (done) => {
         expect(errReturn).not.to.exist
         expect(dataReturn).to.exist
         expect(dataReturn.containerNo).to.equal('someid')
         expect(dataReturn.subContainers).to.be.a('array')
         getContainerMock.done() // throws an error if no request was recorded
+        done()
       })
     })
   })
@@ -79,10 +86,11 @@ describe('when using trimperson api', () => {
       })
     })
 
-    Then('it should getDocument succesfully', () => {
+    Then('it should getDocument succesfully', (done) => {
       expect(errReturn).not.to.exist
       expect(dataReturn).to.exist
       getDocumentMock.done()
+      done()
     })
   })
 
@@ -112,10 +120,11 @@ describe('when using trimperson api', () => {
         done()
       })
     })
-    Then('it should be able to create a container', () => {
+    Then('it should be able to create a container', (done) => {
       expect(errReturn).not.to.exist
       expect(dataReturn).to.exist
       createContainerMock.done()
+      done()
     })
   })
 
@@ -147,12 +156,13 @@ describe('when using trimperson api', () => {
           done()
         })
       })
-      Then('it should be able to succesfully use the function', () => {
+      Then('it should be able to succesfully use the function', (done) => {
         expect(errReturn).not.to.exist
         expect(dataReturn).to.exist
         expect(dataReturn).to.be.a('string')
         expect(dataReturn).to.equal('123456')
         createRecordMock.done()
+        done()
       })
 
     })
@@ -162,7 +172,7 @@ describe('when using trimperson api', () => {
       var dataReturn
       Given(() => {
         createRecordMock = nock(mockURL)
-          .filteringRequestBody(function (bodyt) {
+          .filteringRequestBody(function (body) {
             return '*'
           })
           .post('/AddRecordToTrim', '*')
@@ -176,10 +186,11 @@ describe('when using trimperson api', () => {
           done()
         })
       })
-      Then('it should fail when TRIM responds without a record number number', () => {
+      Then('it should fail when TRIM responds without a record number number', (done) => {
         expect(errReturn).to.exist
         expect(dataReturn).not.to.exist
         createRecordMock.done()
+        done()
       })
     })
   })

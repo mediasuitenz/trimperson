@@ -1,9 +1,9 @@
-var request = require('request');
-var assert = require('assert');
-var debug = require('debug')('trim');
-var R = require('ramda-extended');
-var url;
-var token;
+var request = require('request')
+var assert = require('assert')
+var debug = require('debug')('trim')
+var R = require('ramda-extended')
+var url
+var token
 
 var PRIVACY_LEVELS = {
   PUBLIC: 1,
@@ -25,7 +25,7 @@ var PRIVACY_LEVELS = {
  * @param {String}    data.extension Omit the period, e.g. "pdf" or "png" but not ".png"
  * @param {String}    data.fileData Base64 String without the prefix
  * @param {String[]}  data.alternativeContainers A list of additional TRIM containers to upload to
- * @param {Boolean}   data.privacyLevel public=1, private=2; higher numbers escalate privacy level
+ * @param {Boolean}   data.privacyLevel public=1, private=2 -- higher numbers escalate privacy level
  * @param {createRecordCallback}  callback
  */
 function createRecord(data, callback) {
@@ -100,7 +100,7 @@ function getDocument (trimId, callback) {
     url: url + '/get?id=' + trimId + '&securityToken=' + token
   }
   request.get(options, function (err, res, responseBody) {
-    callback(err, responseBody);
+    callback(err, responseBody)
   })
 }
 
@@ -124,11 +124,11 @@ function getContainerUsingMethod(method, trimId, callback) {
   var options = {
     url: url + '/' + method + '?trimid=' + trimId + '&securityToken=' + token,
     json: true
-  };
-  debug('GET %s', options.url);
+  }
+  debug('GET %s', options.url)
   request.get(options, function (err, res, responseBody) {
-    callback(err, responseBody);
-  });
+    callback(err, responseBody)
+  })
 }
 
 /**
@@ -189,14 +189,15 @@ function createContainer (data, callback) {
     Title: data.folderName,
     Privacy: data.privacyLevel,
     ParentFolder: data.parentFolder
-  };
+  }
   var options = {
     url: url + '/CreateContainer?securityToken=' + token,
     json: body
-  };
+  }
+
   request.post(options, function (err, res, responseBody) {
     callback(err, responseBody)
-  });
+  })
 }
 
 function createPublicContainer (data, callback) {
@@ -220,10 +221,10 @@ module.exports = function (apiUrl, apiToken, debug) {
   assert(typeof apiUrl === 'string', 'Argument 1 to instantiate the TRIM wrapper must be a valid url.')
   assert(typeof apiToken === 'string', 'Argument 2 to instantiate the TRIM wrapper must be a valid apiToken.')
 
-  url = apiUrl;
-  token = apiToken;
+  url = apiUrl
+  token = apiToken
   if (!!debug)
-    require('request-debug')(request);
+    require('request-debug')(request)
 
   return {
     PRIVACY_LEVELS: PRIVACY_LEVELS,
