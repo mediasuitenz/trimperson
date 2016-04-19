@@ -36,6 +36,7 @@ describe('When using v2.2.1 or less', () => {
     trim = require('./index')({
       url: mockURL,
       token: mockToken,
+      testing: true,
       mock: false
     })
   })
@@ -157,6 +158,7 @@ describe('When using trimperson api', () => {
     trim = require('./index')({
       url: mockURL,
       token: mockToken,
+      testing: true,
       mock: false
     })
   })

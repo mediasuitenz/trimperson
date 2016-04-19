@@ -4,6 +4,7 @@ var debug = require('debug')('trim')
 var R = require('ramda-extended')
 var url
 var token
+var testing
 
 var PRIVACY_LEVELS = {
   PUBLIC: 1,
@@ -11,6 +12,12 @@ var PRIVACY_LEVELS = {
 }
 
 var isValidPrivacyLevel = R.contains(R.__, R.values(PRIVACY_LEVELS))
+
+function deprecationWarning(warning) {
+  if (!testing) {
+    console.log('DEPRECATION WARNING: ', warning)
+  }
+}
 
 /**
  * Define the callback from the `createRecord` method
@@ -33,7 +40,7 @@ var isValidPrivacyLevel = R.contains(R.__, R.values(PRIVACY_LEVELS))
 function createRecord(data, callback) {
   if (arguments.length === 5) {
     // Compatibility with usage before the alternativeContainers parameter was added
-    debug('WARNING: The createRecord arguments have changed to accept a single data parameter instead of multiple')
+    deprecationWarning('The createRecord arguments have changed to accept a single data parameter instead of multiple')
     data = {
       title: arguments[0],
       container: arguments[1],
@@ -45,7 +52,7 @@ function createRecord(data, callback) {
     callback = arguments[4]
   } else if (arguments.length === 6) {
     // Compatibility with usage after the alternativeContainers parameter was added
-    debug('WARNING: The createRecord arguments have changed to accept a single data parameter instead of multiple')
+    deprecationWarning('The createRecord arguments have changed to accept a single data parameter instead of multiple')
     data = {
       title: arguments[0],
       container: arguments[1],
