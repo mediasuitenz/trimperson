@@ -203,14 +203,6 @@ describe('When using trimperson api', () => {
       expect(trim.createRecord).to.be.a('function')
       done()
     })
-    Then('`createPublicRecord` should be a function', (done) => {
-      expect(trim.createPublicRecord).to.be.a('function')
-      done()
-    })
-    Then('`createPrivateRecord` should be a function', (done) => {
-      expect(trim.createPrivateRecord).to.be.a('function')
-      done()
-    })
     describe('Using the `createRecord` function', () => {
 
       describe('When the request succeeds', () => {
@@ -356,14 +348,6 @@ describe('When using trimperson api', () => {
   describe('To create a container', () => {
     Then('`createContainer` should be a function', (done) => {
       expect(trim.createContainer).to.be.a('function')
-      done()
-    })
-    Then('`createPublicContainer` should be a function', (done) => {
-      expect(trim.createPublicContainer).to.be.a('function')
-      done()
-    })
-    Then('`createPrivateContainer` should be a function', (done) => {
-      expect(trim.createPrivateContainer).to.be.a('function')
       done()
     })
 
@@ -559,14 +543,6 @@ describe('When using trimperson api', () => {
   describe('To get a container', () => {
     Then('`getContainer` should be a function', (done) => {
       expect(trim.getContainer).to.be.a('function')
-      done()
-    })
-    Then('`getPublicContainer` should be a function', (done) => {
-      expect(trim.getPublicContainer).to.be.a('function')
-      done()
-    })
-    Then('`getPrivateContainer` should be a function', (done) => {
-      expect(trim.getPrivateContainer).to.be.a('function')
       done()
     })
 

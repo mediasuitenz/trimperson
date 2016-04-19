@@ -93,15 +93,6 @@ function createRecord(data, callback) {
   })
 }
 
-function createPublicRecord(data, callback) {
-  return createRecord(R.merge(data, {privacyLevel: PRIVACY_LEVELS.PUBLIC}), callback)
-}
-
-function createPrivateRecord(data, callback) {
-  return createRecord(R.merge(data, {privacyLevel: PRIVACY_LEVELS.PRIVATE}), callback)
-}
-
-
 /**
  * Get the actual document, not the TRIM record
  * @param trimId
@@ -180,11 +171,8 @@ function getContainer (trimId, privacyLevel, callback) {
   return getContainerUsingMethod(method, trimId, callback)
 }
 
-function getPublicContainer (trimId, callback) {
-  return getContainer(trimId, PRIVACY_LEVELS.PUBLIC, callback)
-}
-
 function getPrivateContainer (trimId, callback) {
+  deprecationWarning('getPrivateContainer is deprecated. Use getContainer and pass a privacy level instead.')
   return getContainer(trimId, PRIVACY_LEVELS.PRIVATE, callback)
 }
 
@@ -245,14 +233,6 @@ function createContainer (data, callback) {
   })
 }
 
-function createPublicContainer (data, callback) {
-  return createContainer(R.merge(data, {privacyLevel: PRIVACY_LEVELS.PUBLIC}), callback)
-}
-
-function createPrivateContainer (data, callback) {
-  return createContainer(R.merge(data, {privacyLevel: PRIVACY_LEVELS.PRIVATE}), callback)
-}
-
 /**
  *
  * @param {Object} options configuration options
@@ -277,19 +257,15 @@ module.exports = function (options) {
   return {
     PRIVACY_LEVELS: PRIVACY_LEVELS,
     isValidPrivacyLevel: isValidPrivacyLevel,
-    getDocument: getDocument,
 
+    getDocument: getDocument,
     createRecord: createRecord,
-    createPublicRecord: createPublicRecord,
-    createPrivateRecord: createPrivateRecord,
 
     getContainer: getContainer,
-    getPublicContainer: getPublicContainer,
-    getPrivateContainer: getPrivateContainer,
-
     createContainer: createContainer,
-    createPublicContainer: createPublicContainer,
-    createPrivateContainer: createPrivateContainer
+
+    // deprecations
+    getPrivateContainer: getPrivateContainer
 
   }
 }
