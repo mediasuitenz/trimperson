@@ -399,7 +399,7 @@ describe('When using trimperson api', () => {
       })
     })
 
-    describe('If all no privacy is specified', () => {
+    describe('If no privacyLevel is specified', () => {
       var createContainerMock, dataReturn, errReturn, data
 
       Given(() => data = {
@@ -434,7 +434,7 @@ describe('When using trimperson api', () => {
       var createContainerMock, dataReturn, errReturn, data
 
       Given(() => data = {
-        folderName: INVALID_FOLDER_NAME
+        folderName: ''
       })
       Given(() => {
         createContainerMock = nock(mockURL)
