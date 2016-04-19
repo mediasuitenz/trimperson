@@ -240,8 +240,7 @@ function createContainer (data, callback) {
  * @param {String} options.token TRIM securityToken
  * @param {Boolean} options.debug If true, then require `request-debug`
  * @param {Boolean} options.testing Hide deprecation warnings
- * @return {{getContainer: getContainer, getDocument: getDocument, createContainer: createContainer, createRecord:
- *     createRecord}}
+ * @return {*}
  */
 module.exports = function (options) {
 
