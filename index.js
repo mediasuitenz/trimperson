@@ -4,5 +4,5 @@ module.exports = function (config) {
       require('./trim.production') :
       require('./trim.development')
 
-  return library(config.url, config.token, config.debug)
+  return library(config)
 }

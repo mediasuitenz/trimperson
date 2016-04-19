@@ -248,19 +248,23 @@ function createPrivateContainer (data, callback) {
 
 /**
  *
- * @param {String} apiUrl Base TRIM url
- * @param {String} apiToken TRIM securityToken
- * @param {Boolean} debug If true, then require `request-debug`
+ * @param {Object} options configuration options
+ * @param {String} options.url Base TRIM url
+ * @param {String} options.token TRIM securityToken
+ * @param {Boolean} options.debug If true, then require `request-debug`
+ * @param {Boolean} options.testing Hide deprecation warnings
  * @return {{getContainer: getContainer, getDocument: getDocument, createContainer: createContainer, createRecord:
  *     createRecord}}
  */
-module.exports = function (apiUrl, apiToken, debug) {
-  assert(typeof apiUrl === 'string', 'Argument 1 to instantiate the TRIM wrapper must be a valid url.')
-  assert(typeof apiToken === 'string', 'Argument 2 to instantiate the TRIM wrapper must be a valid apiToken.')
+module.exports = function (options) {
 
-  url = apiUrl
-  token = apiToken
-  if (!!debug)
+  assert(typeof options.url === 'string', 'TRIM wrapper must have a valid `url` argument.')
+  assert(typeof options.token === 'string', 'TRIM wrapper must have a valid `token` argument.')
+
+  url = options.url
+  token = options.token
+  testing = options.testing
+  if (!!options.debug)
     require('request-debug')(request)
 
   return {
