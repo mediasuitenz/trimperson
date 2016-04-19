@@ -6,12 +6,12 @@ var url
 var token
 var testing
 
-var PRIVACY_LEVELS = {
+var PRIVACY = {
   PUBLIC: 1,
   PRIVATE: 2
 }
 
-var isValidPrivacyLevel = R.contains(R.__, R.values(PRIVACY_LEVELS))
+var isValidPrivacyLevel = R.contains(R.__, R.values(PRIVACY))
 
 function deprecationWarning(warning) {
   if (!testing) {
@@ -75,7 +75,7 @@ function createRecord(data, callback) {
       RecordExtension: data.extension,
       AlternativeContainers: data.alternativeContainers || [],
       Record: data.fileData,
-      Privacy: data.privacyLevel || PRIVACY_LEVELS.PUBLIC
+      Privacy: data.privacyLevel || PRIVACY.PUBLIC
     },
     json: true
   }
@@ -155,14 +155,14 @@ function getContainerUsingMethod(method, trimId, callback) {
 function getContainer (trimId, privacyLevel, callback) {
   if (arguments.length === 2) {
     callback = privacyLevel
-    privacyLevel = PRIVACY_LEVELS.PUBLIC
+    privacyLevel = PRIVACY.PUBLIC
   }
   var method
   switch (privacyLevel) {
-    case PRIVACY_LEVELS.PUBLIC:
+    case PRIVACY.PUBLIC:
       method = 'GetContainer'
       break
-    case  PRIVACY_LEVELS.PRIVATE:
+    case  PRIVACY.PRIVATE:
       method = 'getPrivateContainer'
       break
     default:
@@ -173,7 +173,7 @@ function getContainer (trimId, privacyLevel, callback) {
 
 function getPrivateContainer (trimId, callback) {
   deprecationWarning('getPrivateContainer is deprecated. Use getContainer and pass a privacy level instead.')
-  return getContainer(trimId, PRIVACY_LEVELS.PRIVATE, callback)
+  return getContainer(trimId, PRIVACY.PRIVATE, callback)
 }
 
 
@@ -205,7 +205,7 @@ function createContainer (data, callback) {
   var body = {
     RecordNo: data.folderName,
     Title: data.title || data.folderName,
-    Privacy: data.privacyLevel || PRIVACY_LEVELS.PUBLIC,
+    Privacy: data.privacyLevel || PRIVACY.PUBLIC,
     ParentFolder: data.parentFolder
   }
   // parentFolder currently returns a 500 error
@@ -255,7 +255,7 @@ module.exports = function (options) {
     require('request-debug')(request)
 
   return {
-    PRIVACY_LEVELS: PRIVACY_LEVELS,
+    PRIVACY: PRIVACY,
     isValidPrivacyLevel: isValidPrivacyLevel,
 
     getDocument: getDocument,

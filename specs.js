@@ -119,7 +119,7 @@ describe('When using v2.2.1 or less', () => {
 
     Given(() => folder = VALID_FOLDER_NAME)
     Given(() => parentFolder = 'someParentFolder')
-    Given(() => privacySetting = trim.PRIVACY_LEVELS.PUBLIC)
+    Given(() => privacySetting = trim.PRIVACY.PUBLIC)
     Given(() => {
       createContainerMock = nock(mockURL)
           .filteringRequestBody(R.always('*'))
@@ -169,8 +169,8 @@ describe('When using trimperson api', () => {
   })
 
   Then('Unit test: isValidPrivacyLevel', (done) => {
-    expect(trim.isValidPrivacyLevel(trim.PRIVACY_LEVELS.PUBLIC)).to.equal(true)
-    expect(trim.isValidPrivacyLevel(trim.PRIVACY_LEVELS.PRIVATE)).to.equal(true)
+    expect(trim.isValidPrivacyLevel(trim.PRIVACY.PUBLIC)).to.equal(true)
+    expect(trim.isValidPrivacyLevel(trim.PRIVACY.PRIVATE)).to.equal(true)
     expect(trim.isValidPrivacyLevel(3)).to.equal(false)
     done()
   })
@@ -181,15 +181,15 @@ describe('When using trimperson api', () => {
    */
   describe('Privacy constants should be available', () => {
     Then('`PRIVACY_LEVELS` should exist', (done) => {
-      expect(trim.PRIVACY_LEVELS).to.be.an('object')
+      expect(trim.PRIVACY).to.be.an('object')
       done()
     })
     Then('`PRIVACY_LEVELS` should have the correct PUBLIC value', (done) => {
-      expect(trim.PRIVACY_LEVELS.PUBLIC).to.equal(1)
+      expect(trim.PRIVACY.PUBLIC).to.equal(1)
       done()
     })
     Then('`PRIVACY_LEVELS` should have the correct PRIVATE value', (done) => {
-      expect(trim.PRIVACY_LEVELS.PRIVATE).to.equal(2)
+      expect(trim.PRIVACY.PRIVATE).to.equal(2)
       done()
     })
   })
@@ -213,7 +213,7 @@ describe('When using trimperson api', () => {
           extension: VALID_EXTENSION,
           fileData: VALID_FILEDATA,
           alternativeContainers: VALID_ALTERNATIVE_CONTAINERS,
-          privacyLevel: trim.PRIVACY_LEVELS.PUBLIC
+          privacyLevel: trim.PRIVACY.PUBLIC
         })
         Given(() => {
           createRecordMock = nock(mockURL)
@@ -251,7 +251,7 @@ describe('When using trimperson api', () => {
           extension: VALID_EXTENSION,
           fileData: VALID_FILEDATA,
           alternativeContainers: VALID_ALTERNATIVE_CONTAINERS,
-          privacyLevel: trim.PRIVACY_LEVELS.PUBLIC
+          privacyLevel: trim.PRIVACY.PUBLIC
         })
         Given(() => {
           createRecordMock = nock(mockURL)
@@ -356,7 +356,7 @@ describe('When using trimperson api', () => {
 
       Given(() => data = {
         folderName: VALID_FOLDER_NAME,
-        privacyLevel: trim.PRIVACY_LEVELS.PUBLIC
+        privacyLevel: trim.PRIVACY.PUBLIC
       })
       Given(() => {
         createContainerMock = nock(mockURL)
@@ -449,7 +449,7 @@ describe('When using trimperson api', () => {
 
       Given(() => data = {
         folderName: VALID_FOLDER_NAME,
-        privacyLevel: trim.PRIVACY_LEVELS.PUBLIC
+        privacyLevel: trim.PRIVACY.PUBLIC
       })
       Given(() => {
         createContainerMock = nock(mockURL)
@@ -480,7 +480,7 @@ describe('When using trimperson api', () => {
 
       Given(() => data = {
         folderName: VALID_FOLDER_NAME,
-        privacyLevel: trim.PRIVACY_LEVELS.PUBLIC
+        privacyLevel: trim.PRIVACY.PUBLIC
       })
       Given(() => {
         createContainerMock = nock(mockURL)
@@ -511,7 +511,7 @@ describe('When using trimperson api', () => {
 
       Given(() => data = {
         folderName: VALID_FOLDER_NAME,
-        privacyLevel: trim.PRIVACY_LEVELS.PUBLIC
+        privacyLevel: trim.PRIVACY.PUBLIC
       })
       Given(() => {
         createContainerMock = nock(mockURL)
@@ -555,7 +555,7 @@ describe('When using trimperson api', () => {
             .reply(200)
       })
       When(done => {
-        trim.getContainer(VALID_CONTAINER, trim.PRIVACY_LEVELS.PUBLIC, () => done())
+        trim.getContainer(VALID_CONTAINER, trim.PRIVACY.PUBLIC, () => done())
       })
       Then('`/getContainer` is called', done => {
         getContainerMock.done()
@@ -572,7 +572,7 @@ describe('When using trimperson api', () => {
             .reply(200)
       })
       When(done => {
-        trim.getContainer(VALID_CONTAINER, trim.PRIVACY_LEVELS.PRIVATE, () => done())
+        trim.getContainer(VALID_CONTAINER, trim.PRIVACY.PRIVATE, () => done())
       })
       Then('`/getPrivateContainer` is called', done => {
         getContainerMock.done()
@@ -608,7 +608,7 @@ describe('When using trimperson api', () => {
             })
       })
       When(done => {
-        trim.getContainer(VALID_CONTAINER, trim.PRIVACY_LEVELS.PRIVATE, (err, data) => {
+        trim.getContainer(VALID_CONTAINER, trim.PRIVACY.PRIVATE, (err, data) => {
           errReturn = err
           dataReturn = data
           done()
@@ -636,7 +636,7 @@ describe('When using trimperson api', () => {
       })
 
       When((done) => {
-        trim.getContainer(VALID_CONTAINER, trim.PRIVACY_LEVELS.PUBLIC, (err, data) => {
+        trim.getContainer(VALID_CONTAINER, trim.PRIVACY.PUBLIC, (err, data) => {
           dataReturn = data
           errReturn = err
           done()
@@ -664,7 +664,7 @@ describe('When using trimperson api', () => {
       })
 
       When((done) => {
-        trim.getContainer(VALID_CONTAINER, trim.PRIVACY_LEVELS.PUBLIC, (err, data) => {
+        trim.getContainer(VALID_CONTAINER, trim.PRIVACY.PUBLIC, (err, data) => {
           dataReturn = data
           errReturn = err
           done()
