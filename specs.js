@@ -162,7 +162,7 @@ describe('When using trimperson api', () => {
   })
 
   Then('it should have created a trimperson object', (done) => {
-    expect(trim).to.be.a('object')
+    expect(trim).to.be.an('object')
     done()
   })
 
@@ -179,7 +179,7 @@ describe('When using trimperson api', () => {
    */
   describe('Privacy constants should be available', () => {
     Then('`PRIVACY_LEVELS` should exist', (done) => {
-      expect(trim.PRIVACY_LEVELS).to.be.a('object')
+      expect(trim.PRIVACY_LEVELS).to.be.an('object')
       done()
     })
     Then('`PRIVACY_LEVELS` should have the correct PUBLIC value', (done) => {
@@ -390,7 +390,7 @@ describe('When using trimperson api', () => {
       })
       Then('The container is created', done => {
         expect(errReturn).not.to.exist
-        expect(dataReturn).to.be.a('object')
+        expect(dataReturn).to.be.an('object')
         expect(dataReturn.RecordNo).to.equal(VALID_FOLDER_NAME)
         createContainerMock.done()
         done()
@@ -421,7 +421,7 @@ describe('When using trimperson api', () => {
       })
       Then('The container is created', done => {
         expect(errReturn).not.to.exist
-        expect(dataReturn).to.be.a('object')
+        expect(dataReturn).to.be.an('object')
         expect(dataReturn.RecordNo).to.equal(VALID_FOLDER_NAME)
         createContainerMock.done()
         done()
@@ -667,7 +667,7 @@ describe('When using trimperson api', () => {
 
       Then('It should return the container', (done) => {
         expect(errReturn).not.to.exist
-        expect(dataReturn).to.be.a('object')
+        expect(dataReturn).to.be.an('object')
         expect(dataReturn.containerNo).to.equal('someid')
         expect(dataReturn.subContainers).to.be.a('array')
         getContainerMock.done()
