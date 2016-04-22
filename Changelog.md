@@ -25,6 +25,8 @@ The requests now actually handle error responses instead of relying on consumers
 parse and intuit the meaning of responses. A bunch of error conditions have been introduced
 that will return error values in the response callbacks.
 
+## Configuring
+Remove the old trim.development and therefore mocking.
 
 # v2.2.1
 Unrecorded.
