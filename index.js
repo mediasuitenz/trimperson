@@ -100,7 +100,7 @@ function createRecord(data, callback) {
  */
 function getDocument (trimId, callback) {
   var options = {
-    url: url + '/get?id=' + trimId + '&securityToken=' + token
+    url: url + '/get?id=' + encodeURIComponent(trimId) + '&securityToken=' + token
   }
   request.get(options, function (err, res, responseBody) {
     if (res.statusCode === 404) {
@@ -128,7 +128,7 @@ function getDocument (trimId, callback) {
  */
 function getContainerUsingMethod(method, trimId, callback) {
   var options = {
-    url: url + '/' + method + '?trimid=' + trimId + '&securityToken=' + token,
+    url: url + '/' + method + '?trimid=' + encodeURIComponent(trimId) + '&securityToken=' + token,
     json: true
   }
   debug('GET %s', options.url)
