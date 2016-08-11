@@ -189,6 +189,8 @@ function getPrivateContainer (trimId, callback) {
  * @param {Number} data.privacyLevel
  * @param {String} [data.parentFolder]
  * @param {String} [data.title] Display title? Not actually sure what this does
+ * @param {String} data.Classification this is an optional field that is used for grouping folders (used in contracts for grouping folders by year)
+ * @param {String} data.ContainerType this is optional, it is used in "Contracts" for
  * @param {createContainerCallback} callback
  */
 function createContainer (data, callback) {
@@ -205,10 +207,14 @@ function createContainer (data, callback) {
     RecordNo: data.folderName,
     Title: data.title || data.folderName,
     Privacy: data.privacyLevel || PRIVACY.PUBLIC,
-    ParentFolder: data.parentFolder,
-    Classification: data.classification,
-    ContainerType: data.containerType
+    ParentFolder: data.parentFolder
   }
+
+  // optional args
+  if (data.classification) body.Classification = data.classification
+
+  if (data.containerType) body.ContainerType = data.containerType
+
   // parentFolder currently returns a 500 error
   var options = {
     url: url + '/CreateContainer?securityToken=' + token,
