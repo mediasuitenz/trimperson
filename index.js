@@ -13,7 +13,7 @@ var PRIVACY = {
 
 var isValidPrivacyLevel = R.contains(R.__, R.values(PRIVACY))
 
-function deprecationWarning(warning) {
+function deprecationWarning (warning) {
   if (!testing) {
     console.log('DEPRECATION WARNING: ', warning)
   }
@@ -37,7 +37,7 @@ function deprecationWarning(warning) {
  * @param {Boolean}   data.privacyLevel public=1, private=2 -- higher numbers escalate privacy level
  * @param {createRecordCallback}  callback
  */
-function createRecord(data, callback) {
+function createRecord (data, callback) {
   if (arguments.length === 5) {
     // Compatibility with usage before the alternativeContainers parameter was added
     deprecationWarning('The createRecord arguments have changed to accept a single data parameter instead of multiple')
@@ -126,7 +126,7 @@ function getDocument (trimId, callback) {
  * @param {String} trimId
  * @param {containerCallback} callback
  */
-function getContainerUsingMethod(method, trimId, callback) {
+function getContainerUsingMethod (method, trimId, callback) {
   var options = {
     url: url + '/' + method + '?trimid=' + encodeURIComponent(trimId) + '&securityToken=' + token,
     json: true
@@ -162,7 +162,7 @@ function getContainer (trimId, privacyLevel, callback) {
     case PRIVACY.PUBLIC:
       method = 'GetContainer'
       break
-    case  PRIVACY.PRIVATE:
+    case PRIVACY.PRIVATE:
       method = 'getPrivateContainer'
       break
     default:
@@ -175,7 +175,6 @@ function getPrivateContainer (trimId, callback) {
   deprecationWarning('getPrivateContainer is deprecated. Use getContainer and pass a privacy level instead.')
   return getContainer(trimId, PRIVACY.PRIVATE, callback)
 }
-
 
 /**
  * @callback createContainerCallback
@@ -206,7 +205,9 @@ function createContainer (data, callback) {
     RecordNo: data.folderName,
     Title: data.title || data.folderName,
     Privacy: data.privacyLevel || PRIVACY.PUBLIC,
-    ParentFolder: data.parentFolder
+    ParentFolder: data.parentFolder,
+    Classification: data.classification,
+    ContainerType: data.containerType
   }
   // parentFolder currently returns a 500 error
   var options = {
@@ -243,7 +244,6 @@ function createContainer (data, callback) {
  * @return {*}
  */
 module.exports = function (options) {
-
   assert(typeof options.url === 'string', 'TRIM wrapper must have a valid `url` argument.')
   assert(typeof options.token === 'string', 'TRIM wrapper must have a valid `token` argument.')
 
